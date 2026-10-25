@@ -399,10 +399,6 @@ func readGreeterAutoLoginConfig(settingsPath string) (greeterAutoLoginConfig, er
 	return cfg, nil
 }
 
-func readGreeterAutoLoginMemory(memoryPath string) (greeterAutoLoginMemory, error) {
-	return readGreeterAutoLoginMemoryWith(memoryPath, os.ReadFile)
-}
-
 func readGreeterAutoLoginMemoryWith(memoryPath string, read func(string) ([]byte, error)) (greeterAutoLoginMemory, error) {
 	var mem greeterAutoLoginMemory
 	data, err := read(memoryPath)
