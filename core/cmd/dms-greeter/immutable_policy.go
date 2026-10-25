@@ -219,7 +219,7 @@ func getImmutablePolicy() (*immutableCommandPolicy, error) {
 		immutablePolicy = immutableCommandPolicy{
 			ImmutableSystem: detectedImmutable,
 			ImmutableReason: reason,
-			BlockedCommands: []string{"greeter install", "greeter enable", "setup"},
+			BlockedCommands: nil,
 			Message:         "This command is disabled on immutable/image-based systems. Use your distro-native workflow for system-level changes.",
 		}
 
@@ -279,8 +279,20 @@ func requireMutableSystemCommand(cmd *cobra.Command, _ []string) error {
 // preRunPrivileged combines the immutable-system check with a privesc tool
 // selection prompt (shown only when multiple tools are available and the
 // $DMS_PRIVESC env var isn't set).
+// Under sudo the user-scoped steps (group membership, home ACLs, config sync)
+// land on root; the command escalates itself where it needs to.
+func rejectSudoInvocation(uid int, sudoUser string) error {
+	if uid != 0 || sudoUser == "" || sudoUser == "root" {
+		return nil
+	}
+	return fmt.Errorf("run this without sudo as %s; dms-greeter asks for privileges itself", sudoUser)
+}
+
 func preRunPrivileged(cmd *cobra.Command, args []string) error {
 	if err := requireMutableSystemCommand(cmd, args); err != nil {
+		return err
+	}
+	if err := rejectSudoInvocation(os.Getuid(), os.Getenv("SUDO_USER")); err != nil {
 		return err
 	}
 	if _, err := privesc.PromptCLI(os.Stdout, os.Stdin); err != nil {

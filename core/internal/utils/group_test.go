@@ -1,6 +1,10 @@
 package utils
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 const testGroupData = `root:x:0:brltty,root
 sys:x:3:bin,testuser
@@ -138,5 +142,26 @@ func TestFindGroupData(t *testing.T) {
 func TestHasGroupDataEmpty(t *testing.T) {
 	if HasGroupData("greeter", "") {
 		t.Error("expected false for empty data")
+	}
+}
+
+func TestHasGroupInFallsBackToUsrLib(t *testing.T) {
+	dir := t.TempDir()
+	etc := filepath.Join(dir, "group")
+	usrLib := filepath.Join(dir, "usr-lib-group")
+	if err := os.WriteFile(etc, []byte("root:x:0:\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(usrLib, []byte("greeter:x:985:"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if !HasGroupIn("greeter", etc, usrLib) {
+		t.Fatal("group in the second file must count as present")
+	}
+	if HasGroupIn("greeter", etc) {
+		t.Fatal("group absent from the only file must not count")
+	}
+	if group, ok := FindGroupData(ReadAccountDB(etc, usrLib), "greetd", "greeter"); !ok || group != "greeter" {
+		t.Fatalf("FindGroupData = %q, %v", group, ok)
 	}
 }

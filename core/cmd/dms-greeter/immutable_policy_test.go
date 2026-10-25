@@ -5,26 +5,34 @@ import (
 	"testing"
 )
 
-func TestDefaultImmutablePolicyAllowsSyncButBlocksEnable(t *testing.T) {
+// Every greeter mutation writes under /etc and /var, which image-based
+// systems keep writable, so the default policy blocks nothing; images that
+// want a block ship their own policy file.
+func TestDefaultImmutablePolicyBlocksNothing(t *testing.T) {
 	var policyFile cliPolicyFile
 	if err := json.Unmarshal(defaultCLIPolicyJSON, &policyFile); err != nil {
 		t.Fatalf("failed to parse embedded CLI policy: %v", err)
 	}
 	if policyFile.BlockedCommands == nil {
-		t.Fatal("embedded CLI policy has no blocked_commands")
+		t.Fatal("embedded CLI policy must declare blocked_commands so a packaged file can override it")
 	}
 
 	blocked := normalizeBlockedCommands(*policyFile.BlockedCommands)
-	if !commandBlockedByPolicy("greeter enable", blocked) {
-		t.Fatal("expected greeter enable to remain blocked on immutable/image-based systems")
+	for _, cmd := range []string{"greeter install", "dms-greeter install", "greeter enable", "greeter uninstall", "greeter sync"} {
+		if commandBlockedByPolicy(cmd, blocked) {
+			t.Fatalf("%q must stay available on image-based systems", cmd)
+		}
 	}
-	if !commandBlockedByPolicy("dms-greeter enable", blocked) {
-		t.Fatal("expected dms-greeter enable to be blocked via the shared greeter policy spec")
+}
+
+func TestRejectSudoInvocation(t *testing.T) {
+	if err := rejectSudoInvocation(0, "purian23"); err == nil {
+		t.Fatal("root with SUDO_USER must be rejected")
 	}
-	if commandBlockedByPolicy("greeter sync", blocked) {
-		t.Fatal("expected greeter sync to remain available on immutable/image-based systems")
+	if err := rejectSudoInvocation(1000, ""); err != nil {
+		t.Fatalf("plain user rejected: %v", err)
 	}
-	if commandBlockedByPolicy("dms-greeter sync", blocked) {
-		t.Fatal("expected dms-greeter sync to remain available on immutable/image-based systems")
+	if err := rejectSudoInvocation(0, ""); err != nil {
+		t.Fatalf("real root rejected: %v", err)
 	}
 }

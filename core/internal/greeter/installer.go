@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -68,17 +69,17 @@ func EnsureVoidGreetdRunScript(logFunc func(string), sudoPassword string) {
 }
 
 func DetectGreeterGroup() string {
-	data, err := os.ReadFile("/etc/group")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "⚠ Warning: could not read /etc/group, defaulting to greeter")
+	data := utils.GroupDB()
+	if data == "" {
+		fmt.Fprintln(os.Stderr, "⚠ Warning: could not read the group database, defaulting to greeter")
 		return "greeter"
 	}
 
-	if group, found := utils.FindGroupData(string(data), "greeter", "greetd", "_greeter"); found {
+	if group, found := utils.FindGroupData(data, "greeter", "greetd", "_greeter"); found {
 		return group
 	}
 
-	fmt.Fprintln(os.Stderr, "⚠ Warning: no greeter group found in /etc/group, defaulting to greeter")
+	fmt.Fprintln(os.Stderr, "⚠ Warning: no greeter group found, defaulting to greeter")
 	return "greeter"
 }
 
@@ -399,8 +400,12 @@ func readGreeterAutoLoginConfig(settingsPath string) (greeterAutoLoginConfig, er
 }
 
 func readGreeterAutoLoginMemory(memoryPath string) (greeterAutoLoginMemory, error) {
+	return readGreeterAutoLoginMemoryWith(memoryPath, os.ReadFile)
+}
+
+func readGreeterAutoLoginMemoryWith(memoryPath string, read func(string) ([]byte, error)) (greeterAutoLoginMemory, error) {
 	var mem greeterAutoLoginMemory
-	data, err := os.ReadFile(memoryPath)
+	data, err := read(memoryPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return mem, nil
@@ -458,6 +463,10 @@ func readSessionDesktopEntry(path string) (sessionDesktopEntry, error) {
 }
 
 func resolveGreeterAutoLoginState(cacheDir, homeDir string) (enabled bool, loginUser string, sessionID string, err error) {
+	return resolveGreeterAutoLoginStateWith(cacheDir, homeDir, os.ReadFile)
+}
+
+func resolveGreeterAutoLoginStateWith(cacheDir, homeDir string, readMemory func(string) ([]byte, error)) (enabled bool, loginUser string, sessionID string, err error) {
 	settingsPath := filepath.Join(cacheDir, "settings.json")
 	if _, statErr := os.Stat(settingsPath); statErr != nil {
 		settingsPath = filepath.Join(utils.UserDMSDir(homeDir, ".config"), "settings.json")
@@ -469,7 +478,7 @@ func resolveGreeterAutoLoginState(cacheDir, homeDir string) (enabled bool, login
 	}
 
 	memoryPath := filepath.Join(cacheDir, ".local/state/memory.json")
-	mem, err := readGreeterAutoLoginMemory(memoryPath)
+	mem, err := readGreeterAutoLoginMemoryWith(memoryPath, readMemory)
 	if err != nil {
 		return false, "", "", err
 	}
@@ -603,6 +612,10 @@ func readGreeterMemoryFile(memoryPath, sudoPassword string) ([]byte, error) {
 	_ = tmpFile.Close()
 	defer os.Remove(tmpPath)
 
+	// The parent dir is unreadable to the user, so a missing file also surfaces as EACCES.
+	if err := privesc.Run(context.Background(), sudoPassword, "test", "-e", memoryPath); err != nil {
+		return nil, os.ErrNotExist
+	}
 	if err := privesc.Run(context.Background(), sudoPassword, "cp", "-f", memoryPath, tmpPath); err != nil {
 		return nil, fmt.Errorf("failed to read greeter memory at %s: %w", memoryPath, err)
 	}
@@ -610,7 +623,10 @@ func readGreeterMemoryFile(memoryPath, sudoPassword string) ([]byte, error) {
 }
 
 func SyncGreetdAutoLogin(cacheDir, homeDir string, logFunc func(string), sudoPassword string) error {
-	enabled, loginUser, sessionID, err := resolveGreeterAutoLoginState(cacheDir, homeDir)
+	// The cache is group-owned by greeter; on a first install the user's new membership is not live yet.
+	enabled, loginUser, sessionID, err := resolveGreeterAutoLoginStateWith(cacheDir, homeDir, func(path string) ([]byte, error) {
+		return readGreeterMemoryFile(path, sudoPassword)
+	})
 	if err != nil {
 		return err
 	}
@@ -678,9 +694,8 @@ func SyncGreeterAutoLoginOnly(logFunc func(string), sudoPassword string) error {
 }
 
 func DetectGreeterUser() string {
-	passwdData, err := os.ReadFile("/etc/passwd")
-	if err == nil {
-		passwdContent := string(passwdData)
+	passwdContent := utils.PasswdDB()
+	if passwdContent != "" {
 
 		if configData, cfgErr := os.ReadFile("/etc/greetd/config.toml"); cfgErr == nil {
 			if configured := extractDefaultSessionUser(string(configData)); configured != "" && hasPasswdUser(passwdContent, configured) {
@@ -692,7 +707,7 @@ func DetectGreeterUser() string {
 			return user
 		}
 	} else {
-		fmt.Fprintln(os.Stderr, "⚠ Warning: could not read /etc/passwd, defaulting greeter user to 'greeter'")
+		fmt.Fprintln(os.Stderr, "⚠ Warning: could not read the passwd database, defaulting greeter user to 'greeter'")
 	}
 
 	if configData, cfgErr := os.ReadFile("/etc/greetd/config.toml"); cfgErr == nil {
@@ -809,6 +824,11 @@ func EnsureGreetdInstalled(logFunc func(string), sudoPassword string) error {
 	if greetdFound {
 		logFunc("✓ greetd is already installed")
 		return nil
+	}
+
+	// The greeter package requires greetd, so this only happens on a hand-built image.
+	if imageBasedHost() {
+		return fmt.Errorf("greetd is not installed and this is an image-based system; add it to the image (for example 'sudo rpm-ostree install greetd'), reboot, and run this again")
 	}
 
 	logFunc("greetd is not installed. Installing...")
@@ -1202,8 +1222,8 @@ func RemediateStaleACLs(logFunc func(string), sudoPassword string) {
 		return
 	}
 
-	passwdData, err := os.ReadFile("/etc/passwd")
-	if err != nil {
+	passwdContent := utils.PasswdDB()
+	if passwdContent == "" {
 		return
 	}
 
@@ -1218,7 +1238,6 @@ func RemediateStaleACLs(logFunc func(string), sudoPassword string) {
 		filepath.Join(homeDir, ".local", "share"),
 	}
 
-	passwdContent := string(passwdData)
 	staleUsers := []string{"greeter", "greetd", "_greeter"}
 	existingUsers := make([]string, 0, len(staleUsers))
 	for _, user := range staleUsers {
@@ -1258,6 +1277,32 @@ func RemediateStaleAppArmor(logFunc func(string), sudoPassword string) {
 	_ = UninstallAppArmorProfile(logFunc, sudoPassword)
 }
 
+func userInGroup(username, group string) bool {
+	out, err := exec.Command("groups", username).Output()
+	if err != nil {
+		return false
+	}
+	_, list, _ := strings.Cut(string(out), ":")
+	if list == "" {
+		list = string(out)
+	}
+	return slices.Contains(strings.Fields(list), group)
+}
+
+// materializeGroupInEtc copies a group that only exists in /usr/lib/group (rpm-ostree,
+// nss-altfiles) into /etc/group; usermod exits 0 on such groups without adding anyone.
+func materializeGroupInEtc(group string, logFunc func(string), sudoPassword string) error {
+	if utils.HasGroupIn(group, "/etc/group") || !utils.HasGroupIn(group, "/usr/lib/group") {
+		return nil
+	}
+	script := fmt.Sprintf("grep '^%s:' /usr/lib/group >> /etc/group", group)
+	if err := privesc.Run(context.Background(), sudoPassword, "sh", "-c", script); err != nil {
+		return fmt.Errorf("failed to copy %s group into /etc/group: %w", group, err)
+	}
+	logFunc(fmt.Sprintf("✓ Copied %s group from /usr/lib/group into /etc/group", group))
+	return nil
+}
+
 func SetupDMSGroup(logFunc func(string), sudoPassword string) error {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -1281,14 +1326,18 @@ func SetupDMSGroup(logFunc func(string), sudoPassword string) error {
 		}
 		logFunc(fmt.Sprintf("✓ Created system group %s", group))
 	}
+	if err := materializeGroupInEtc(group, logFunc, sudoPassword); err != nil {
+		return err
+	}
 
-	groupsCmd := exec.Command("groups", currentUser)
-	groupsOutput, err := groupsCmd.Output()
-	if err == nil && strings.Contains(string(groupsOutput), group) {
+	if userInGroup(currentUser, group) {
 		logFunc(fmt.Sprintf("✓ %s is already in %s group", currentUser, group))
 	} else {
 		if err := privesc.Run(context.Background(), sudoPassword, "usermod", "-aG", group, currentUser); err != nil {
 			return fmt.Errorf("failed to add %s to %s group: %w", currentUser, group, err)
+		}
+		if !userInGroup(currentUser, group) {
+			return fmt.Errorf("usermod reported success but %s is still not in the %s group", currentUser, group)
 		}
 		logFunc(fmt.Sprintf("✓ Added %s to %s group (logout/login required for changes to take effect)", currentUser, group))
 	}
@@ -2048,4 +2097,13 @@ func stripCacheDirFlag(command string) string {
 	}
 
 	return strings.Join(filtered, " ")
+}
+
+func imageBasedHost() bool {
+	for _, marker := range []string{"/run/ostree-booted", "/usr/sbin/transactional-update", "/usr/bin/abroot"} {
+		if _, err := os.Stat(marker); err == nil {
+			return true
+		}
+	}
+	return false
 }

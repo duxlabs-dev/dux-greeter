@@ -488,3 +488,17 @@ include "dms/render.kdl"
 		t.Fatalf("expected render-drm-device merged, got:\n%s", rendered)
 	}
 }
+
+func TestResolveGreeterAutoLoginStateUsesMemoryReader(t *testing.T) {
+	cacheDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(cacheDir, "settings.json"), []byte(`{"greeterAutoLogin":true}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	read := func(path string) ([]byte, error) {
+		return []byte(`{"lastSuccessfulUser":"alice"}`), nil
+	}
+	enabled, loginUser, _, err := resolveGreeterAutoLoginStateWith(cacheDir, t.TempDir(), read)
+	if err != nil || !enabled || loginUser != "alice" {
+		t.Fatalf("enabled=%v user=%q err=%v", enabled, loginUser, err)
+	}
+}
