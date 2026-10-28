@@ -28,6 +28,10 @@ Singleton {
     property var matugenColors: ({})
     property var customThemeData: null
     property var customThemeRawData: null
+    property string customThemePath: ""
+    property bool colorsLoading: false
+    property bool customThemeLoading: false
+    readonly property bool loading: colorsLoading || customThemeLoading
 
     onIsLightModeChanged: {
         if (currentTheme === custom && customThemeRawData)
@@ -36,8 +40,14 @@ Singleton {
 
     function applyGreeterTheme(themeName) {
         switchTheme(themeName);
-        if (themeName === dynamic && dynamicColorsFileView.path)
-            dynamicColorsFileView.reload();
+        if (themeName !== dynamic || !dynamicColorsFileView.path)
+            return;
+        reloadColors();
+    }
+
+    function reloadColors() {
+        colorsLoading = true;
+        dynamicColorsFileView.reload();
     }
 
     function switchTheme(themeName) {
@@ -182,7 +192,12 @@ Singleton {
     }
 
     function loadCustomThemeFromFile(filePath) {
-        customThemeFileView.path = Paths.expandTilde(filePath);
+        const path = Paths.expandTilde(filePath);
+        if (path === customThemePath)
+            return;
+        customThemePath = path;
+        customThemeLoading = true;
+        customThemeFileView.path = path;
     }
 
     property color primary: currentThemeData.primary
@@ -582,7 +597,7 @@ Singleton {
         if (greeterColorsBaseDir === next)
             return;
         greeterColorsBaseDir = next;
-        dynamicColorsFileView.reload();
+        reloadColors();
     }
 
     function resetGreeterColorsBaseDir() {
@@ -597,6 +612,7 @@ Singleton {
         printErrors: false
 
         onLoaded: {
+            root.colorsLoading = false;
             try {
                 const colorsText = dynamicColorsFileView.text();
                 if (!colorsText)
@@ -606,6 +622,8 @@ Singleton {
                 root.log.warn("Failed to parse dynamic colors:", e);
             }
         }
+
+        onLoadFailed: root.colorsLoading = false
     }
 
     FileView {
@@ -615,6 +633,7 @@ Singleton {
         printErrors: false
 
         onLoaded: {
+            root.customThemeLoading = false;
             try {
                 root.loadCustomTheme(JSON.parse(customThemeFileView.text()));
             } catch (e) {
@@ -623,6 +642,7 @@ Singleton {
         }
 
         onLoadFailed: function (error) {
+            root.customThemeLoading = false;
             root.log.warn("Failed to read custom theme file:", error);
         }
     }

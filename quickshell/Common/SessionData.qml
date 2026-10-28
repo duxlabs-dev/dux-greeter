@@ -26,6 +26,7 @@ Singleton {
     property var desktopWidgetInstancePositions: Spec.SPEC.desktopWidgetInstancePositions.def
     property var lockScreenAutoPositions: Spec.SPEC.lockScreenAutoPositions.def
     property var greeterAutoPositions: Spec.SPEC.greeterAutoPositions.def
+    property bool loaded: false
 
     function readSession(content) {
         if (!content || !content.trim())
@@ -51,6 +52,7 @@ Singleton {
             const value = spec.coerce ? spec.coerce(session[key]) : session[key];
             root[key] = value !== undefined ? value : SpecUtil.cloneDef(spec.def);
         }
+        loaded = true;
     }
 
     function _findMonitorValue(map, screenName) {
@@ -136,6 +138,7 @@ Singleton {
         if (greeterSessionBaseDir === next)
             return;
         greeterSessionBaseDir = next;
+        loaded = false;
         greeterSessionFile.reload();
     }
 

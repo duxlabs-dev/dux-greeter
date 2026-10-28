@@ -14,6 +14,8 @@ Singleton {
     property var usernames: []
     property var profileImageMap: ({})
     property bool loaded: false
+    property bool syncedThemesLoaded: false
+    readonly property bool ready: loaded && syncedThemesLoaded
 
     Component.onCompleted: _loadUsers()
 
@@ -94,6 +96,7 @@ Singleton {
     function _refreshSyncedThemeFlags() {
         if (usernames.length === 0) {
             syncedThemePaths = ({});
+            syncedThemesLoaded = true;
             return;
         }
         const checks = usernames.map(u => `[ -f "${syncedSettingsPath(u)}" ] && echo "${u}:1" || echo "${u}:0"`).join("; ");
@@ -106,6 +109,7 @@ Singleton {
                     map[parts[0]] = parts[1] === "1";
             }
             root.syncedThemePaths = map;
+            root.syncedThemesLoaded = true;
         }, 0);
     }
 
