@@ -14,6 +14,8 @@ import "../../DCommon/Common/LayoutCodes.js" as LayoutCodes
 Item {
     id: root
 
+    readonly property var log: Log.scoped("GreeterContent")
+
     function encodeFileUrl(path) {
         if (!path)
             return "";
@@ -150,6 +152,18 @@ Item {
     property bool manualUsernameEntry: false
     property bool skipAutoSelectUser: false
     property string pickerThemeUsername: ""
+    readonly property bool startupSettled: SettingsData.loaded && SessionData.loaded && !Theme.loading && GreeterUsersService.ready && GreetdMemory.memoryReady
+    property bool revealed: false
+    property int revealTimeoutMs: 3000
+
+    onStartupSettledChanged: Qt.callLater(revealWhenSettled)
+
+    // Handlers that react to the same load may still switch the config dir, so the check runs after them.
+    function revealWhenSettled() {
+        if (!startupSettled)
+            return;
+        revealed = true;
+    }
 
     function initWeatherService() {
         if (weatherInitialized)
@@ -498,6 +512,7 @@ Item {
     }
 
     Component.onCompleted: {
+        revealWhenSettled();
         initWeatherService();
         refreshPasswordAttemptPolicyHint();
 
@@ -1239,6 +1254,22 @@ Item {
         onClosed: {
             if (isPrimaryScreen)
                 Qt.callLater(root.focusInput);
+        }
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        z: powerMenu.z + 1
+        color: Theme.screenOffColor
+        visible: !root.revealed
+    }
+
+    Timer {
+        interval: root.revealTimeoutMs
+        running: !root.revealed
+        onTriggered: {
+            root.log.warn("Startup state did not settle in time, revealing anyway");
+            root.revealed = true;
         }
     }
 }
