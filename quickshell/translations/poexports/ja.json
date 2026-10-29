@@ -1,6 +1,6 @@
 {
   "Authenticating...": {
-    "Authenticating...": "認証中..."
+    "Authenticating...": ""
   },
   "Authentication error - try again": {
     "Authentication error - try again": "認証エラー - もう一度試してください"
@@ -15,7 +15,10 @@
     "Authentication failed - try again": ""
   },
   "Auto-login": {
-    "Auto-login": "自動ログイン"
+    "Auto-login": ""
+  },
+  "Awaiting face authentication": {
+    "Awaiting face authentication": ""
   },
   "Awaiting fingerprint authentication": {
     "Awaiting fingerprint authentication": ""
@@ -27,24 +30,48 @@
     "Awaiting security key authentication": ""
   },
   "Back to user list": {
-    "Back to user list": "ユーザー一覧に戻る"
+    "Back to user list": ""
+  },
+  "Face recognition": {
+    "Face recognition": ""
+  },
+  "Fingerprint": {
+    "Fingerprint": ""
+  },
+  "Hide password": {
+    "Hide password": ""
+  },
+  "Keyboard": {
+    "Keyboard": ""
   },
   "Logging in...": {
-    "Logging in...": "ログイン中..."
+    "Logging in...": ""
+  },
+  "Login": {
+    "Login": "ログイン"
   },
   "Not listed?": {
-    "Not listed?": "一覧にありませんか？"
+    "Not listed?": ""
   },
   "Password...": {
-    "Password...": "パスワード..."
+    "Password...": ""
+  },
+  "Power Options": {
+    "Power Options": ""
+  },
+  "Security key": {
+    "Security key": ""
   },
   "Select user...": {
-    "Select user...": "ユーザーを選択..."
+    "Select user...": ""
+  },
+  "Show password": {
+    "Show password": ""
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": "失敗回数が多すぎます - アカウントがロックされている可能性があります"
+    "Too many failed attempts - account may be locked": ""
   },
   "Username...": {
-    "Username...": "ユーザー名..."
+    "Username...": ""
   }
 }

@@ -3,7 +3,7 @@
     "Authenticating...": ""
   },
   "Authentication error - try again": {
-    "Authentication error - try again": ""
+    "Authentication error - try again": "Kimlik doğrulama hatası - tekrar dene"
   },
   "Authentication failed - attempt %1 of %2": {
     "Authentication failed - attempt %1 of %2": ""
@@ -17,6 +17,9 @@
   "Auto-login": {
     "Auto-login": ""
   },
+  "Awaiting face authentication": {
+    "Awaiting face authentication": ""
+  },
   "Awaiting fingerprint authentication": {
     "Awaiting fingerprint authentication": ""
   },
@@ -29,8 +32,23 @@
   "Back to user list": {
     "Back to user list": ""
   },
+  "Face recognition": {
+    "Face recognition": ""
+  },
+  "Fingerprint": {
+    "Fingerprint": ""
+  },
+  "Hide password": {
+    "Hide password": ""
+  },
+  "Keyboard": {
+    "Keyboard": ""
+  },
   "Logging in...": {
     "Logging in...": ""
+  },
+  "Login": {
+    "Login": "Oturum Aç"
   },
   "Not listed?": {
     "Not listed?": ""
@@ -38,8 +56,17 @@
   "Password...": {
     "Password...": ""
   },
+  "Power Options": {
+    "Power Options": ""
+  },
+  "Security key": {
+    "Security key": ""
+  },
   "Select user...": {
     "Select user...": ""
+  },
+  "Show password": {
+    "Show password": ""
   },
   "Too many failed attempts - account may be locked": {
     "Too many failed attempts - account may be locked": ""

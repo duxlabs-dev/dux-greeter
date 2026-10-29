@@ -1,50 +1,77 @@
 {
   "Authenticating...": {
-    "Authenticating...": "מאמת..."
+    "Authenticating...": "מבצע אימות..."
   },
   "Authentication error - try again": {
     "Authentication error - try again": "שגיאת אימות - נסה/י שנית"
   },
   "Authentication failed - attempt %1 of %2": {
-    "Authentication failed - attempt %1 of %2": "האימות נכשל - ניסיון %1 מתוך %2"
+    "Authentication failed - attempt %1 of %2": ""
   },
   "Authentication failed - lockout can occur": {
-    "Authentication failed - lockout can occur": "האימות נכשל - עלולה להתרחש נעילה"
+    "Authentication failed - lockout can occur": ""
   },
   "Authentication failed - try again": {
     "Authentication failed - try again": "האימות נכשל - נסה/י שנית"
   },
   "Auto-login": {
-    "Auto-login": "התחברות אוטומטית"
+    "Auto-login": ""
+  },
+  "Awaiting face authentication": {
+    "Awaiting face authentication": ""
   },
   "Awaiting fingerprint authentication": {
-    "Awaiting fingerprint authentication": "ממתין לאימות באמצעות טביעת אצבע"
+    "Awaiting fingerprint authentication": ""
   },
   "Awaiting fingerprint or security key authentication": {
-    "Awaiting fingerprint or security key authentication": "ממתין לאימות באמצעות טביעת אצבע או מפתח אבטחה"
+    "Awaiting fingerprint or security key authentication": ""
   },
   "Awaiting security key authentication": {
-    "Awaiting security key authentication": "ממתין לאימות באמצעות מפתח אבטחה"
+    "Awaiting security key authentication": ""
   },
   "Back to user list": {
-    "Back to user list": "חזרה לרשימת המשתמשים"
+    "Back to user list": ""
+  },
+  "Face recognition": {
+    "Face recognition": ""
+  },
+  "Fingerprint": {
+    "Fingerprint": "טביעת אצבע"
+  },
+  "Hide password": {
+    "Hide password": "הסתר/י סיסמה"
+  },
+  "Keyboard": {
+    "Keyboard": "מקלדת"
   },
   "Logging in...": {
-    "Logging in...": "מתחבר..."
+    "Logging in...": ""
+  },
+  "Login": {
+    "Login": "התחברות"
   },
   "Not listed?": {
-    "Not listed?": "לא מופיע ברשימה?"
+    "Not listed?": ""
   },
   "Password...": {
-    "Password...": "סיסמה..."
+    "Password...": ""
+  },
+  "Power Options": {
+    "Power Options": "אפשרויות כיבוי והפעלה"
+  },
+  "Security key": {
+    "Security key": "מפתח אבטחה"
   },
   "Select user...": {
-    "Select user...": "בחר/י משתמש..."
+    "Select user...": ""
+  },
+  "Show password": {
+    "Show password": "הצג/י סיסמה"
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": "יותר מדי ניסיונות כושלים - החשבון עלול להינעל"
+    "Too many failed attempts - account may be locked": ""
   },
   "Username...": {
-    "Username...": "שם משתמש..."
+    "Username...": ""
   }
 }

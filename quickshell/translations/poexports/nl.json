@@ -1,50 +1,77 @@
 {
   "Authenticating...": {
-    "Authenticating...": "Controleren..."
+    "Authenticating...": "Authenticeren..."
   },
   "Authentication error - try again": {
     "Authentication error - try again": "Authenticatiefout - probeer het opnieuw"
   },
   "Authentication failed - attempt %1 of %2": {
-    "Authentication failed - attempt %1 of %2": "Authenticatie mislukt - poging %1 van %2"
+    "Authentication failed - attempt %1 of %2": ""
   },
   "Authentication failed - lockout can occur": {
-    "Authentication failed - lockout can occur": "Authenticatie mislukt - uitsluiting kan optreden"
+    "Authentication failed - lockout can occur": ""
   },
   "Authentication failed - try again": {
     "Authentication failed - try again": "Authenticatie mislukt - probeer het opnieuw"
   },
   "Auto-login": {
-    "Auto-login": "Automatisch inloggen"
+    "Auto-login": ""
+  },
+  "Awaiting face authentication": {
+    "Awaiting face authentication": ""
   },
   "Awaiting fingerprint authentication": {
-    "Awaiting fingerprint authentication": "Wachten op vingerafdrukauthenticatie"
+    "Awaiting fingerprint authentication": ""
   },
   "Awaiting fingerprint or security key authentication": {
-    "Awaiting fingerprint or security key authentication": "Wachten op vingerafdruk- of beveiligingssleutelauthenticatie"
+    "Awaiting fingerprint or security key authentication": ""
   },
   "Awaiting security key authentication": {
-    "Awaiting security key authentication": "Wachten op beveiligingssleutelauthenticatie"
+    "Awaiting security key authentication": ""
   },
   "Back to user list": {
-    "Back to user list": "Terug naar gebruikerslijst"
+    "Back to user list": ""
+  },
+  "Face recognition": {
+    "Face recognition": ""
+  },
+  "Fingerprint": {
+    "Fingerprint": "Vingerafdruk"
+  },
+  "Hide password": {
+    "Hide password": "Wachtwoord verbergen"
+  },
+  "Keyboard": {
+    "Keyboard": "Toetsenbord"
   },
   "Logging in...": {
-    "Logging in...": "Inloggen..."
+    "Logging in...": ""
+  },
+  "Login": {
+    "Login": "Inloggen"
   },
   "Not listed?": {
-    "Not listed?": "Niet in de lijst?"
+    "Not listed?": ""
   },
   "Password...": {
-    "Password...": "Wachtwoord..."
+    "Password...": ""
+  },
+  "Power Options": {
+    "Power Options": "Energieopties"
+  },
+  "Security key": {
+    "Security key": "Beveiligingssleutel"
   },
   "Select user...": {
-    "Select user...": "Gebruiker selecteren..."
+    "Select user...": ""
+  },
+  "Show password": {
+    "Show password": "Wachtwoord tonen"
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": "Te veel mislukte pogingen - account is mogelijk geblokkeerd"
+    "Too many failed attempts - account may be locked": ""
   },
   "Username...": {
-    "Username...": "Gebruikersnaam..."
+    "Username...": ""
   }
 }

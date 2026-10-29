@@ -1,50 +1,77 @@
 {
   "Authenticating...": {
-    "Authenticating...": "认证中..."
+    "Authenticating...": "正在验证…"
   },
   "Authentication error - try again": {
-    "Authentication error - try again": "认证错误 - 请重试"
+    "Authentication error - try again": "身份验证出错，请重试"
   },
   "Authentication failed - attempt %1 of %2": {
-    "Authentication failed - attempt %1 of %2": "认证失败——第 %1 次尝试，共 %2 次"
+    "Authentication failed - attempt %1 of %2": ""
   },
   "Authentication failed - lockout can occur": {
-    "Authentication failed - lockout can occur": "认证失败——可能触发锁定"
+    "Authentication failed - lockout can occur": ""
   },
   "Authentication failed - try again": {
-    "Authentication failed - try again": "认证失败——请重试"
+    "Authentication failed - try again": "身份验证失败，请重试"
   },
   "Auto-login": {
-    "Auto-login": "自动登录"
+    "Auto-login": ""
+  },
+  "Awaiting face authentication": {
+    "Awaiting face authentication": ""
   },
   "Awaiting fingerprint authentication": {
-    "Awaiting fingerprint authentication": "等待指纹认证"
+    "Awaiting fingerprint authentication": ""
   },
   "Awaiting fingerprint or security key authentication": {
-    "Awaiting fingerprint or security key authentication": "等待指纹或安全密钥认证"
+    "Awaiting fingerprint or security key authentication": ""
   },
   "Awaiting security key authentication": {
-    "Awaiting security key authentication": "等待安全密钥认证"
+    "Awaiting security key authentication": ""
   },
   "Back to user list": {
-    "Back to user list": "返回用户列表"
+    "Back to user list": ""
+  },
+  "Face recognition": {
+    "Face recognition": ""
+  },
+  "Fingerprint": {
+    "Fingerprint": "指纹"
+  },
+  "Hide password": {
+    "Hide password": "隐藏密码"
+  },
+  "Keyboard": {
+    "Keyboard": "键盘"
   },
   "Logging in...": {
-    "Logging in...": "正在登录..."
+    "Logging in...": ""
+  },
+  "Login": {
+    "Login": "登录"
   },
   "Not listed?": {
-    "Not listed?": "未列出？"
+    "Not listed?": ""
   },
   "Password...": {
-    "Password...": "密码..."
+    "Password...": ""
+  },
+  "Power Options": {
+    "Power Options": "电源选项"
+  },
+  "Security key": {
+    "Security key": "安全密钥"
   },
   "Select user...": {
-    "Select user...": "选择用户..."
+    "Select user...": ""
+  },
+  "Show password": {
+    "Show password": "显示密码"
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": "失败次数过多 - 账号将会被锁定"
+    "Too many failed attempts - account may be locked": ""
   },
   "Username...": {
-    "Username...": "用户名..."
+    "Username...": ""
   }
 }

@@ -8,25 +8,25 @@
   {
     "term": "Authentication error - try again",
     "context": "Authentication error - try again",
-    "reference": "Modules/Greetd/GreeterContent.qml:315",
+    "reference": "Modules/Greetd/GreeterContent.qml:327",
     "comment": ""
   },
   {
     "term": "Authentication failed - attempt %1 of %2",
     "context": "Authentication failed - attempt %1 of %2",
-    "reference": "Modules/Greetd/GreeterContent.qml:323",
+    "reference": "Modules/Greetd/GreeterContent.qml:335",
     "comment": ""
   },
   {
     "term": "Authentication failed - lockout can occur",
     "context": "Authentication failed - lockout can occur",
-    "reference": "Modules/Greetd/GreeterContent.qml:325",
+    "reference": "Modules/Greetd/GreeterContent.qml:337",
     "comment": ""
   },
   {
     "term": "Authentication failed - try again",
     "context": "Authentication failed - try again",
-    "reference": "Modules/Greetd/GreeterContent.qml:327",
+    "reference": "Modules/Greetd/GreeterContent.qml:339",
     "comment": ""
   },
   {
@@ -140,7 +140,7 @@
   {
     "term": "Too many failed attempts - account may be locked",
     "context": "Too many failed attempts - account may be locked",
-    "reference": "Modules/Greetd/GreeterContent.qml:317",
+    "reference": "Modules/Greetd/GreeterContent.qml:329",
     "comment": ""
   },
   {
