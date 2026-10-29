@@ -1,6 +1,6 @@
 {
   "Authenticating...": {
-    "Authenticating...": "Autenticando..."
+    "Authenticating...": ""
   },
   "Authentication error - try again": {
     "Authentication error - try again": "Erro de autenticação - tente novamente"
@@ -12,10 +12,13 @@
     "Authentication failed - lockout can occur": ""
   },
   "Authentication failed - try again": {
-    "Authentication failed - try again": ""
+    "Authentication failed - try again": "Falha na autenticação - tente novamente"
   },
   "Auto-login": {
     "Auto-login": ""
+  },
+  "Awaiting face authentication": {
+    "Awaiting face authentication": ""
   },
   "Awaiting fingerprint authentication": {
     "Awaiting fingerprint authentication": ""
@@ -29,17 +32,41 @@
   "Back to user list": {
     "Back to user list": ""
   },
+  "Face recognition": {
+    "Face recognition": ""
+  },
+  "Fingerprint": {
+    "Fingerprint": ""
+  },
+  "Hide password": {
+    "Hide password": ""
+  },
+  "Keyboard": {
+    "Keyboard": "Teclado"
+  },
   "Logging in...": {
     "Logging in...": ""
+  },
+  "Login": {
+    "Login": "Login"
   },
   "Not listed?": {
     "Not listed?": ""
   },
   "Password...": {
-    "Password...": "Senha..."
+    "Password...": ""
+  },
+  "Power Options": {
+    "Power Options": ""
+  },
+  "Security key": {
+    "Security key": "Chave de segurança"
   },
   "Select user...": {
     "Select user...": ""
+  },
+  "Show password": {
+    "Show password": ""
   },
   "Too many failed attempts - account may be locked": {
     "Too many failed attempts - account may be locked": ""

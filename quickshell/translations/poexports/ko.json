@@ -3,7 +3,7 @@
     "Authenticating...": "인증 중..."
   },
   "Authentication error - try again": {
-    "Authentication error - try again": "인증 오류 - 다시 시도"
+    "Authentication error - try again": "인증 오류 - 다시 시도하세요"
   },
   "Authentication failed - attempt %1 of %2": {
     "Authentication failed - attempt %1 of %2": ""
@@ -12,10 +12,13 @@
     "Authentication failed - lockout can occur": ""
   },
   "Authentication failed - try again": {
-    "Authentication failed - try again": ""
+    "Authentication failed - try again": "인증 실패 - 다시 시도하세요"
   },
   "Auto-login": {
-    "Auto-login": "자동 로그인"
+    "Auto-login": ""
+  },
+  "Awaiting face authentication": {
+    "Awaiting face authentication": ""
   },
   "Awaiting fingerprint authentication": {
     "Awaiting fingerprint authentication": ""
@@ -27,24 +30,48 @@
     "Awaiting security key authentication": ""
   },
   "Back to user list": {
-    "Back to user list": "사용자 목록으로 돌아가기"
+    "Back to user list": ""
+  },
+  "Face recognition": {
+    "Face recognition": ""
+  },
+  "Fingerprint": {
+    "Fingerprint": "지문"
+  },
+  "Hide password": {
+    "Hide password": "비밀번호 숨기기"
+  },
+  "Keyboard": {
+    "Keyboard": "키보드"
   },
   "Logging in...": {
-    "Logging in...": "로그인 중..."
+    "Logging in...": ""
+  },
+  "Login": {
+    "Login": "로그인"
   },
   "Not listed?": {
-    "Not listed?": "목록에 없습니까?"
+    "Not listed?": ""
   },
   "Password...": {
-    "Password...": "비밀번호..."
+    "Password...": ""
+  },
+  "Power Options": {
+    "Power Options": "전원 옵션"
+  },
+  "Security key": {
+    "Security key": "보안 키"
   },
   "Select user...": {
-    "Select user...": "사용자 선택..."
+    "Select user...": ""
+  },
+  "Show password": {
+    "Show password": "비밀번호 표시"
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": "실패한 시도 횟수 너무 많음 - 계정이 잠길 수 있음"
+    "Too many failed attempts - account may be locked": ""
   },
   "Username...": {
-    "Username...": "사용자 이름..."
+    "Username...": ""
   }
 }

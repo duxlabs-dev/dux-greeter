@@ -1,6 +1,6 @@
 {
   "Authenticating...": {
-    "Authenticating...": "正在驗證..."
+    "Authenticating...": ""
   },
   "Authentication error - try again": {
     "Authentication error - try again": "驗證錯誤 - 請再試一次"
@@ -15,7 +15,10 @@
     "Authentication failed - try again": ""
   },
   "Auto-login": {
-    "Auto-login": "自動登入"
+    "Auto-login": ""
+  },
+  "Awaiting face authentication": {
+    "Awaiting face authentication": ""
   },
   "Awaiting fingerprint authentication": {
     "Awaiting fingerprint authentication": ""
@@ -27,24 +30,48 @@
     "Awaiting security key authentication": ""
   },
   "Back to user list": {
-    "Back to user list": "返回使用者列表"
+    "Back to user list": ""
+  },
+  "Face recognition": {
+    "Face recognition": ""
+  },
+  "Fingerprint": {
+    "Fingerprint": ""
+  },
+  "Hide password": {
+    "Hide password": ""
+  },
+  "Keyboard": {
+    "Keyboard": ""
   },
   "Logging in...": {
-    "Logging in...": "正在登入..."
+    "Logging in...": ""
+  },
+  "Login": {
+    "Login": "登入"
   },
   "Not listed?": {
-    "Not listed?": "未列出？"
+    "Not listed?": ""
   },
   "Password...": {
-    "Password...": "密碼..."
+    "Password...": ""
+  },
+  "Power Options": {
+    "Power Options": ""
+  },
+  "Security key": {
+    "Security key": ""
   },
   "Select user...": {
-    "Select user...": "選擇使用者..."
+    "Select user...": ""
+  },
+  "Show password": {
+    "Show password": ""
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": "嘗試失敗次數過多 - 帳戶可能已鎖定"
+    "Too many failed attempts - account may be locked": ""
   },
   "Username...": {
-    "Username...": "使用者名稱..."
+    "Username...": ""
   }
 }

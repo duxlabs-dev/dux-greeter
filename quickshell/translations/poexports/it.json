@@ -6,45 +6,72 @@
     "Authentication error - try again": "Errore di autenticazione - riprova"
   },
   "Authentication failed - attempt %1 of %2": {
-    "Authentication failed - attempt %1 of %2": "Autenticazione non riuscita - tentativo %1 di %2"
+    "Authentication failed - attempt %1 of %2": ""
   },
   "Authentication failed - lockout can occur": {
-    "Authentication failed - lockout can occur": "Autenticazione non riuscita - possibile blocco dell'account"
+    "Authentication failed - lockout can occur": ""
   },
   "Authentication failed - try again": {
     "Authentication failed - try again": "Autenticazione non riuscita - riprova"
   },
   "Auto-login": {
-    "Auto-login": "Accesso Automatico"
+    "Auto-login": ""
+  },
+  "Awaiting face authentication": {
+    "Awaiting face authentication": ""
   },
   "Awaiting fingerprint authentication": {
-    "Awaiting fingerprint authentication": "In attesa dell'autenticazione tramite impronta digitale"
+    "Awaiting fingerprint authentication": ""
   },
   "Awaiting fingerprint or security key authentication": {
-    "Awaiting fingerprint or security key authentication": "In attesa dell'autenticazione tramite impronta digitale o chiave di sicurezza"
+    "Awaiting fingerprint or security key authentication": ""
   },
   "Awaiting security key authentication": {
-    "Awaiting security key authentication": "In attesa dell'autenticazione tramite chiave di sicurezza"
+    "Awaiting security key authentication": ""
   },
   "Back to user list": {
-    "Back to user list": "Torna alla Lista Utenti"
+    "Back to user list": ""
+  },
+  "Face recognition": {
+    "Face recognition": ""
+  },
+  "Fingerprint": {
+    "Fingerprint": "Impronta digitale"
+  },
+  "Hide password": {
+    "Hide password": "Nascondi password"
+  },
+  "Keyboard": {
+    "Keyboard": "Tastiera"
   },
   "Logging in...": {
-    "Logging in...": "Accesso in corso..."
+    "Logging in...": ""
+  },
+  "Login": {
+    "Login": "Accesso"
   },
   "Not listed?": {
-    "Not listed?": "Non elencato?"
+    "Not listed?": ""
   },
   "Password...": {
-    "Password...": "Password..."
+    "Password...": ""
+  },
+  "Power Options": {
+    "Power Options": "Opzioni di alimentazione"
+  },
+  "Security key": {
+    "Security key": "Chiave di sicurezza"
   },
   "Select user...": {
-    "Select user...": "Seleziona l'utente..."
+    "Select user...": ""
+  },
+  "Show password": {
+    "Show password": "Mostra password"
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": "Troppi tentativi falliti - l'account potrebbe essere bloccato"
+    "Too many failed attempts - account may be locked": ""
   },
   "Username...": {
-    "Username...": "Nome utente..."
+    "Username...": ""
   }
 }

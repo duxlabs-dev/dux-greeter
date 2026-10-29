@@ -6,45 +6,72 @@
     "Authentication error - try again": "خطأ في المصادقة - حاول مرة أخرى"
   },
   "Authentication failed - attempt %1 of %2": {
-    "Authentication failed - attempt %1 of %2": "فشل التحقق من الهوية - المحاولة %1 من %2"
+    "Authentication failed - attempt %1 of %2": ""
   },
   "Authentication failed - lockout can occur": {
-    "Authentication failed - lockout can occur": "فشل التحقق - قد يؤدي ذلك إلى قفل حسابك"
+    "Authentication failed - lockout can occur": ""
   },
   "Authentication failed - try again": {
     "Authentication failed - try again": "فشل التحقق - يرجى المحاولة مرة أخرى"
   },
   "Auto-login": {
-    "Auto-login": "تسجيل الدخول التلقائي"
+    "Auto-login": ""
+  },
+  "Awaiting face authentication": {
+    "Awaiting face authentication": ""
   },
   "Awaiting fingerprint authentication": {
-    "Awaiting fingerprint authentication": "بانتظار التحقق ببصمة الإصبع"
+    "Awaiting fingerprint authentication": ""
   },
   "Awaiting fingerprint or security key authentication": {
-    "Awaiting fingerprint or security key authentication": "بانتظار التحقق ببصمة الإصبع أو مفتاح الأمان"
+    "Awaiting fingerprint or security key authentication": ""
   },
   "Awaiting security key authentication": {
-    "Awaiting security key authentication": "بانتظار التحقق بمفتاح الأمان"
+    "Awaiting security key authentication": ""
   },
   "Back to user list": {
-    "Back to user list": "العودة إلى قائمة المستخدمين"
+    "Back to user list": ""
+  },
+  "Face recognition": {
+    "Face recognition": ""
+  },
+  "Fingerprint": {
+    "Fingerprint": "بصمة الإصبع"
+  },
+  "Hide password": {
+    "Hide password": "إخفاء كلمة المرور"
+  },
+  "Keyboard": {
+    "Keyboard": "لوحة المفاتيح"
   },
   "Logging in...": {
-    "Logging in...": "جاري تسجيل الدخول..."
+    "Logging in...": ""
+  },
+  "Login": {
+    "Login": "تسجيل الدخول"
   },
   "Not listed?": {
-    "Not listed?": "غير مدرج؟"
+    "Not listed?": ""
   },
   "Password...": {
-    "Password...": "كلمة المرور..."
+    "Password...": ""
+  },
+  "Power Options": {
+    "Power Options": "خيارات الطاقة"
+  },
+  "Security key": {
+    "Security key": "مفتاح الأمان"
   },
   "Select user...": {
-    "Select user...": "اختر مستخدماً..."
+    "Select user...": ""
+  },
+  "Show password": {
+    "Show password": "عرض كلمة المرور"
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": "عدد كبير جداً من المحاولات الفاشلة - قد يكون الحساب مقفلاً"
+    "Too many failed attempts - account may be locked": ""
   },
   "Username...": {
-    "Username...": "اسم المستخدم..."
+    "Username...": ""
   }
 }

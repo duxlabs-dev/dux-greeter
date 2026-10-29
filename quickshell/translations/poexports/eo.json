@@ -12,10 +12,13 @@
     "Authentication failed - lockout can occur": ""
   },
   "Authentication failed - try again": {
-    "Authentication failed - try again": ""
+    "Authentication failed - try again": "Aŭtentigo malsukcesis - reprovu"
   },
   "Auto-login": {
-    "Auto-login": "Aŭtomata ensaluto"
+    "Auto-login": ""
+  },
+  "Awaiting face authentication": {
+    "Awaiting face authentication": ""
   },
   "Awaiting fingerprint authentication": {
     "Awaiting fingerprint authentication": ""
@@ -27,24 +30,48 @@
     "Awaiting security key authentication": ""
   },
   "Back to user list": {
-    "Back to user list": "Reen al listo de uzantoj"
+    "Back to user list": ""
+  },
+  "Face recognition": {
+    "Face recognition": ""
+  },
+  "Fingerprint": {
+    "Fingerprint": "Fingrospuro"
+  },
+  "Hide password": {
+    "Hide password": "Kaŝi pasvorton"
+  },
+  "Keyboard": {
+    "Keyboard": "Klavaro"
   },
   "Logging in...": {
-    "Logging in...": "Salutante..."
+    "Logging in...": ""
+  },
+  "Login": {
+    "Login": "Saluti"
   },
   "Not listed?": {
-    "Not listed?": "Ĉu ne en listo?"
+    "Not listed?": ""
   },
   "Password...": {
-    "Password...": "Pasvorto..."
+    "Password...": ""
+  },
+  "Power Options": {
+    "Power Options": "Elektraj opcioj"
+  },
+  "Security key": {
+    "Security key": "Sekurecŝlosilo"
   },
   "Select user...": {
-    "Select user...": "Elektu uzanton..."
+    "Select user...": ""
+  },
+  "Show password": {
+    "Show password": "Montri pasvorton"
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": "Tro da malsukcesaj provoj - la konto eble estas ŝlosita"
+    "Too many failed attempts - account may be locked": ""
   },
   "Username...": {
-    "Username...": "Uzantnomo..."
+    "Username...": ""
   }
 }

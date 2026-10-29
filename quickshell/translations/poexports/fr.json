@@ -1,6 +1,6 @@
 {
   "Authenticating...": {
-    "Authenticating...": "Authentification..."
+    "Authenticating...": ""
   },
   "Authentication error - try again": {
     "Authentication error - try again": "Erreur d'authentification - essayez à nouveau"
@@ -17,6 +17,9 @@
   "Auto-login": {
     "Auto-login": ""
   },
+  "Awaiting face authentication": {
+    "Awaiting face authentication": ""
+  },
   "Awaiting fingerprint authentication": {
     "Awaiting fingerprint authentication": ""
   },
@@ -29,22 +32,46 @@
   "Back to user list": {
     "Back to user list": ""
   },
+  "Face recognition": {
+    "Face recognition": ""
+  },
+  "Fingerprint": {
+    "Fingerprint": ""
+  },
+  "Hide password": {
+    "Hide password": ""
+  },
+  "Keyboard": {
+    "Keyboard": ""
+  },
   "Logging in...": {
-    "Logging in...": "Connexion..."
+    "Logging in...": ""
+  },
+  "Login": {
+    "Login": ""
   },
   "Not listed?": {
     "Not listed?": ""
   },
   "Password...": {
-    "Password...": "Mot de passe..."
+    "Password...": ""
+  },
+  "Power Options": {
+    "Power Options": ""
+  },
+  "Security key": {
+    "Security key": ""
   },
   "Select user...": {
     "Select user...": ""
   },
+  "Show password": {
+    "Show password": ""
+  },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": "Trop de tentatives échouées - le compte peut être verrouillé"
+    "Too many failed attempts - account may be locked": ""
   },
   "Username...": {
-    "Username...": "Nom d'utilisateur..."
+    "Username...": ""
   }
 }

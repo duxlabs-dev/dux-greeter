@@ -12,10 +12,13 @@
     "Authentication failed - lockout can occur": ""
   },
   "Authentication failed - try again": {
-    "Authentication failed - try again": ""
+    "Authentication failed - try again": "Xác thực thất bại - thử lại"
   },
   "Auto-login": {
-    "Auto-login": "Tự động đăng nhập"
+    "Auto-login": ""
+  },
+  "Awaiting face authentication": {
+    "Awaiting face authentication": ""
   },
   "Awaiting fingerprint authentication": {
     "Awaiting fingerprint authentication": ""
@@ -27,24 +30,48 @@
     "Awaiting security key authentication": ""
   },
   "Back to user list": {
-    "Back to user list": "Quay lại danh sách người dùng"
+    "Back to user list": ""
+  },
+  "Face recognition": {
+    "Face recognition": ""
+  },
+  "Fingerprint": {
+    "Fingerprint": "Dấu vân tay"
+  },
+  "Hide password": {
+    "Hide password": "Ẩn mật khẩu"
+  },
+  "Keyboard": {
+    "Keyboard": "Bàn phím"
   },
   "Logging in...": {
-    "Logging in...": "Đang đăng nhập..."
+    "Logging in...": ""
+  },
+  "Login": {
+    "Login": "Đăng nhập"
   },
   "Not listed?": {
-    "Not listed?": "Không có trong danh sách?"
+    "Not listed?": ""
   },
   "Password...": {
-    "Password...": "Mật khẩu..."
+    "Password...": ""
+  },
+  "Power Options": {
+    "Power Options": "Tùy chọn nguồn"
+  },
+  "Security key": {
+    "Security key": "Khóa bảo mật"
   },
   "Select user...": {
-    "Select user...": "Chọn người dùng..."
+    "Select user...": ""
+  },
+  "Show password": {
+    "Show password": "Hiển thị mật khẩu"
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": "Quá nhiều lần thử thất bại - tài khoản có thể đã bị khóa"
+    "Too many failed attempts - account may be locked": ""
   },
   "Username...": {
-    "Username...": "Tên người dùng..."
+    "Username...": ""
   }
 }
