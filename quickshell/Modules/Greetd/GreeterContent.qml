@@ -808,7 +808,7 @@ Item {
     readonly property string wallpaperSource: {
         if (hasCustomWallpaper)
             return encodeFileUrl(GreetdSettings.resolveUserPath(SettingsData.lockScreenWallpaperPath));
-        var w = SessionData.getMonitorWallpaper(screen?.name ?? "");
+        var w = SessionData.getMonitorWallpaperImage(screen?.name ?? "");
         return (w && !w.startsWith("#")) ? encodeFileUrl(w) : "";
     }
     readonly property string wallpaperFillModeName: {

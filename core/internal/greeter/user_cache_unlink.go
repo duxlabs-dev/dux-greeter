@@ -11,7 +11,7 @@ import (
 	"github.com/duxlabs-dev/dux-greeter/core/internal/privesc"
 )
 
-var cacheRootLinkNames = []string{"settings.json", "session.json", "colors.json"}
+var cacheRootLinkNames = []string{"settings.json", "session.json", "colors.json", videoWallpaperFramesName}
 
 // rootLinksInto lists cache-root entries that symlink into homeDir.
 func rootLinksInto(cacheDir, homeDir string) []string {
