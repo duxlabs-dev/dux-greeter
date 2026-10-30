@@ -278,12 +278,15 @@ func isSystemBinaryPath(path string) bool {
 		!strings.HasPrefix(path, "/tmp/")
 }
 
-func formatInitialSessionCommand(cacheDir string) string {
+func formatInitialSessionCommand(cacheDir, sessionID string) string {
 	cacheDir = strings.TrimSpace(cacheDir)
 	if cacheDir == "" {
 		return `command = ""`
 	}
 	launcher := fmt.Sprintf("%s launch-session --from-memory --cache-dir %s", stableGreeterCommand(), shellQuote(cacheDir))
+	if sessionID = strings.TrimSpace(sessionID); sessionID != "" {
+		launcher += " --session-id " + shellQuote(sessionID)
+	}
 	escaped := strings.ReplaceAll(launcher, `'`, `'\''`)
 	inner := fmt.Sprintf("env XDG_SESSION_TYPE=wayland sh -c 'exec %s'", escaped)
 	tomlEscaped := strings.ReplaceAll(inner, `\`, `\\`)
@@ -291,12 +294,12 @@ func formatInitialSessionCommand(cacheDir string) string {
 	return fmt.Sprintf(`command = "%s"`, tomlEscaped)
 }
 
-func upsertInitialSession(configContent, loginUser, cacheDir string, enabled bool) string {
+func upsertInitialSession(configContent, loginUser, cacheDir, sessionID string, enabled bool) string {
 	if !enabled {
 		return removeTomlSection(configContent, "initial_session")
 	}
 
-	commandLine := formatInitialSessionCommand(cacheDir)
+	commandLine := formatInitialSessionCommand(cacheDir, sessionID)
 	lines := strings.Split(configContent, "\n")
 	var out []string
 
@@ -473,12 +476,6 @@ func resolveGreeterAutoLoginStateWith(cacheDir, homeDir string, readMemory func(
 		return false, "", "", err
 	}
 
-	memoryPath := filepath.Join(cacheDir, ".local/state/memory.json")
-	mem, err := readGreeterAutoLoginMemoryWith(memoryPath, readMemory)
-	if err != nil {
-		return false, "", "", err
-	}
-
 	enabled = cfg.GreeterAutoLogin
 	if !enabled {
 		return false, "", "", nil
@@ -486,6 +483,12 @@ func resolveGreeterAutoLoginStateWith(cacheDir, homeDir string, readMemory func(
 
 	if !cfg.GreeterRememberLastUser || !cfg.GreeterRememberLastSession {
 		return true, "", "", nil
+	}
+
+	memoryPath := filepath.Join(cacheDir, ".local/state/memory.json")
+	mem, err := readGreeterAutoLoginMemoryWith(memoryPath, readMemory)
+	if err != nil {
+		return true, "", "", err
 	}
 
 	loginUser = mem.LastSuccessfulUser
@@ -640,7 +643,7 @@ func SyncGreetdAutoLogin(cacheDir, homeDir string, logFunc func(string), sudoPas
 		if err := clearGreeterAutoLoginMemory(memoryPath, sudoPassword); err != nil && logFunc != nil {
 			logFunc(fmt.Sprintf("⚠ Warning: Failed to clear greeter auto-login memory flag: %v", err))
 		}
-		newConfig := upsertInitialSession(configContent, "", "", false)
+		newConfig := upsertInitialSession(configContent, "", "", "", false)
 		if newConfig == configContent {
 			if logFunc != nil {
 				logFunc("✓ Greeter auto-login disabled")
@@ -654,14 +657,14 @@ func SyncGreetdAutoLogin(cacheDir, homeDir string, logFunc func(string), sudoPas
 		if logFunc != nil {
 			logFunc("⚠ Greeter auto-login is enabled but user or session is not configured yet. Log in manually once, then run sync.")
 		}
-		newConfig := upsertInitialSession(configContent, "", "", false)
+		newConfig := upsertInitialSession(configContent, "", "", "", false)
 		if newConfig != configContent {
 			return writeGreetdConfig(configPath, newConfig, nil, sudoPassword, "")
 		}
 		return nil
 	}
 
-	newConfig := upsertInitialSession(configContent, loginUser, cacheDir, true)
+	newConfig := upsertInitialSession(configContent, loginUser, cacheDir, sessionID, true)
 	if newConfig == configContent {
 		if logFunc != nil {
 			logFunc(fmt.Sprintf("✓ Greeter auto-login already configured for %s", loginUser))

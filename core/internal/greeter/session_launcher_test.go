@@ -1,8 +1,10 @@
 package greeter
 
 import (
+	"os"
 	"path/filepath"
 	"reflect"
+	"syscall"
 	"testing"
 )
 
@@ -94,5 +96,35 @@ func TestSessionEnv(t *testing.T) {
 				t.Fatalf("sessionEnv = %#v, want %#v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestResolveLaunchSessionIDFallsBackWhenMemoryIsUnreadable(t *testing.T) {
+	t.Parallel()
+
+	cacheDir := t.TempDir()
+	writeTestFile(t, filepath.Join(cacheDir, "settings.json"), `{"greeterAutoLogin": true}`)
+	denied := func(path string) ([]byte, error) {
+		return nil, &os.PathError{Op: "open", Path: path, Err: syscall.EACCES}
+	}
+
+	got, err := resolveLaunchSessionID(cacheDir, t.TempDir(), "niri.desktop", denied)
+	if err != nil || got != "niri.desktop" {
+		t.Fatalf("got session=%q err=%v", got, err)
+	}
+}
+
+func TestResolveLaunchSessionIDHonorsDisabledSettingBeforeMemory(t *testing.T) {
+	t.Parallel()
+
+	cacheDir := t.TempDir()
+	writeTestFile(t, filepath.Join(cacheDir, "settings.json"), `{"greeterAutoLogin": false}`)
+	denied := func(path string) ([]byte, error) {
+		return nil, &os.PathError{Op: "open", Path: path, Err: syscall.EACCES}
+	}
+
+	got, err := resolveLaunchSessionID(cacheDir, t.TempDir(), "niri.desktop", denied)
+	if got != "" || err == nil || err.Error() != "greeter auto-login is disabled" {
+		t.Fatalf("expected disabled error, got session=%q err=%v", got, err)
 	}
 }

@@ -220,7 +220,7 @@ command = "/usr/bin/dms-greeter --command niri"
 
 	t.Run("inserts initial session", func(t *testing.T) {
 		t.Parallel()
-		got := upsertInitialSession(baseConfig, "alice", "/var/cache/dms-greeter", true)
+		got := upsertInitialSession(baseConfig, "alice", "/var/cache/dms-greeter", "niri.desktop", true)
 		if !strings.Contains(got, "[initial_session]") {
 			t.Fatalf("expected [initial_session] section, got:\n%s", got)
 		}
@@ -229,6 +229,9 @@ command = "/usr/bin/dms-greeter --command niri"
 		}
 		if !strings.Contains(got, `launch-session --from-memory --cache-dir`) {
 			t.Fatalf("expected stable launch-session command, got:\n%s", got)
+		}
+		if !strings.Contains(got, "--session-id") || !strings.Contains(got, "niri.desktop") {
+			t.Fatalf("expected the remembered session id as launch fallback, got:\n%s", got)
 		}
 		if !strings.Contains(got, "dms-greeter") {
 			t.Fatalf("expected dms-greeter launcher in initial session, got:\n%s", got)
@@ -245,7 +248,7 @@ command = "/usr/bin/dms-greeter --command niri"
 user = "bob"
 command = "old-command"
 `
-		got := upsertInitialSession(existing, "alice", "/var/cache/dms-greeter", true)
+		got := upsertInitialSession(existing, "alice", "/var/cache/dms-greeter", "", true)
 		if strings.Contains(got, `user = "bob"`) {
 			t.Fatalf("expected bob to be replaced, got:\n%s", got)
 		}
@@ -261,7 +264,7 @@ command = "old-command"
 user = "alice"
 command = "niri"
 `
-		got := upsertInitialSession(existing, "", "", false)
+		got := upsertInitialSession(existing, "", "", "", false)
 		if strings.Contains(got, "[initial_session]") {
 			t.Fatalf("expected initial session removed, got:\n%s", got)
 		}
@@ -371,7 +374,7 @@ func TestResolveGreeterAutoLoginStateIgnoresStaleSessionExec(t *testing.T) {
 		t.Fatalf("got enabled=%v user=%q session=%q", enabled, loginUser, sessionID)
 	}
 
-	got := upsertInitialSession("", loginUser, cacheDir, true)
+	got := upsertInitialSession("", loginUser, cacheDir, sessionID, true)
 	if strings.Contains(got, "/nix/store/old-session") {
 		t.Fatalf("initial session must not include stale store path, got:\n%s", got)
 	}
