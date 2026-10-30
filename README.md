@@ -52,16 +52,16 @@ yay -S dux-greeter-git
 
 ### Debian / openSUSE
 
-Official packages are available from the [Dux Labs OBS repository](https://software.opensuse.org/download/package?package=dms-greeter&project=home%3AAvengeMedia%3Adanklinux). Add the repo for your distribution, then install **`dms-greeter`** (stable) or **`dms-greeter-git`** (master; Conflicts with stable):
+Official packages are available from the [Dux Labs OBS repository](https://software.opensuse.org/download/package?package=dux-greeter&project=home%3AAvengeMedia%3Adanklinux). Add the repo for your distribution, then install **`dux-greeter`** (stable) or **`dux-greeter-git`** (master; Conflicts with stable):
 
 ```bash
 # Debian 13
-sudo apt install dms-greeter
-# sudo apt install dms-greeter-git
+sudo apt install dux-greeter
+# sudo apt install dux-greeter-git
 
 # openSUSE Tumbleweed
-zypper install dms-greeter
-# zypper install dms-greeter-git
+zypper install dux-greeter
+# zypper install dux-greeter-git
 ```
 
 Ubuntu uses the same package names from [`ppa:avengemedia/danklinux`](https://launchpad.net/~avengemedia/+archive/ubuntu/danklinux). See the [Installation guide](https://duxlabs.dev/docs/dms-greeter/installation) for full repository setup.
@@ -70,22 +70,22 @@ Ubuntu uses the same package names from [`ppa:avengemedia/danklinux`](https://la
 
 ```bash
 sudo dnf copr enable avengemedia/danklinux
-sudo dnf install dms-greeter
+sudo dnf install dux-greeter
 ```
 
 For the latest development build from `master` (Conflicts with the stable package):
 
 ```bash
 sudo dnf copr enable avengemedia/danklinux
-sudo dnf install dms-greeter-git
+sudo dnf install dux-greeter-git
 ```
 
 ### Void Linux
 
 ```bash
-echo 'repository=https://void.danklinux.com/dms/current' | sudo tee /etc/xbps.d/dms.conf
-sudo xbps-install -S dms-greeter
-# sudo xbps-install -S dms-greeter-git   # master snapshots; Conflicts with stable
+echo 'repository=https://void.duxlabs.dev/dux-repo/current' | sudo tee /etc/xbps.d/dux.conf
+sudo xbps-install -S dux-greeter
+# sudo xbps-install -S dux-greeter-git   # master snapshots; Conflicts with stable
 ```
 
 The packages create the greeter user (via `systemd-sysusers` for atomic/immutable compatibility, with package script fallback), set up directories and permissions, and apply SELinux contexts where relevant.
@@ -221,6 +221,7 @@ Only niri has a generated greeter config path managed by `dms-greeter sync`:
 - niri: `dms-greeter sync` writes the generated greeter config to `/etc/greetd/niri/config.kdl`. Add local manual tweaks in `/etc/greetd/niri_overrides.kdl`.
 - Aqueous: the launcher starts `aqueous` directly with XWayland disabled and stops it when Quickshell exits. `-C` selects a greeter TOML file used for WM, layout, input, rules, and outputs. Keep desktop autostarts and application shortcuts out of this file; the default disables application, screenshot, lock, and overview shortcuts.
 - Other compositors use a launcher-generated config by default. For a custom compositor config, add `-C /path/to/config` to the `dms-greeter` command in `/etc/greetd/config.toml`.
+- Hyprland: requires Hyprland 0.55 or newer. A `-C` config must be Lua (see `assets/examples/dms-hypr.lua`); the launcher appends the greeter launch to it. A hyprlang config is ignored with a warning and the built-in config is used.
 
 ### Personalization
 

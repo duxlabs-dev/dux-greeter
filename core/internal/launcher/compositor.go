@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/duxlabs-dev/dux-go/log"
 	"github.com/duxlabs-dev/dux-greeter/core/internal/config"
 )
 
@@ -17,6 +18,15 @@ var niriOverrideFiles = []string{
 }
 
 var hyprlandLuaPattern = regexp.MustCompile(`(^|[^[:alnum:]_])hl\.`)
+
+const hyprlandBaseConfig = `hl.env("DMS_RUN_GREETER", "1")
+
+hl.config({
+	misc = {
+		disable_hyprland_logo = true,
+	},
+})
+`
 
 const aqueousBaseConfig = `[keybinds]
 spawn_terminal = []
@@ -92,47 +102,47 @@ func buildHyprlandPlan(configPath, qsCmd string) (launchPlan, error) {
 		return launchPlan{}, fmt.Errorf("neither 'start-hyprland' nor 'Hyprland' was found in PATH")
 	}
 
-	var tempConfig string
-	var err error
-	switch {
-	case configPath != "" && isHyprlandLuaConfig(configPath):
-		content, readErr := os.ReadFile(configPath)
-		if readErr != nil {
-			return launchPlan{}, readErr
-		}
-		lua := fmt.Sprintf("%s\nhl.on(\"hyprland.start\", function()\n    hl.exec_cmd(\"sh -c \\\"%s; hyprctl dispatch 'hl.dsp.exit()'\\\"\")\nend)\n", content, qsCmd)
-		tempConfig, err = writeTempConfig(lua, ".lua")
-	case configPath == "":
-		lua := fmt.Sprintf(`hl.env("DMS_RUN_GREETER", "1")
-
-hl.config({
-	misc = {
-		disable_hyprland_logo = true,
-	},
-})
-
-hl.on("hyprland.start", function()
-	hl.exec_cmd("sh -c \"%s; hyprctl dispatch 'hl.dsp.exit()'\"")
-end)
-`, qsCmd)
-		tempConfig, err = writeTempConfig(lua, ".lua")
-	default:
-		// hyprlang stays usable until 0.57 ships; legacy dispatch is the only form a .conf session accepts
-		content, readErr := os.ReadFile(configPath)
-		if readErr != nil {
-			return launchPlan{}, readErr
-		}
-		conf := fmt.Sprintf("%s\nexec-once = sh -c \"%s; hyprctl dispatch exit\"\n", content, qsCmd)
-		tempConfig, err = writeTempConfig(conf, "")
+	lua, err := hyprlandLuaConfig(configPath, qsCmd)
+	if err != nil {
+		return launchPlan{}, err
 	}
+	tempConfig, err := writeTempConfig(lua, ".lua")
 	if err != nil {
 		return launchPlan{}, err
 	}
 
+	// Without MANAGERPID, Hyprland starts hyprland-session.target, pulling graphical-session units up as the greeter user.
+	env := []string{"HYPRLAND_NO_SD_TARGET=1"}
 	if startHyprland {
-		return launchPlan{logTag: "hyprland", argv: []string{"start-hyprland", "--", "--config", tempConfig}}, nil
+		return launchPlan{logTag: "hyprland", argv: []string{"start-hyprland", "--", "--config", tempConfig}, env: env}, nil
 	}
-	return launchPlan{logTag: "hyprland", argv: []string{"Hyprland", "-c", tempConfig}}, nil
+	return launchPlan{logTag: "hyprland", argv: []string{"Hyprland", "-c", tempConfig}, env: env}, nil
+}
+
+func hyprlandLuaConfig(configPath, qsCmd string) (string, error) {
+	launch := fmt.Sprintf("\nhl.on(\"hyprland.start\", function()\n\thl.exec_cmd(%s)\nend)\n", luaLongString(fmt.Sprintf(`sh -c "%s; hyprctl dispatch 'hl.dsp.exit()'"`, qsCmd)))
+	if configPath == "" {
+		return hyprlandBaseConfig + launch, nil
+	}
+
+	content, err := os.ReadFile(configPath)
+	if err != nil {
+		return "", err
+	}
+	if !IsHyprlandLuaConfig(configPath, content) {
+		log.Warnf("Hyprland 0.57 only reads Lua config; ignoring %s and using the built-in config", configPath)
+		return hyprlandBaseConfig + launch, nil
+	}
+	// A top-level `return` in the user's file would make the appended handler a syntax error.
+	return "do\n" + string(content) + "\nend\n" + launch, nil
+}
+
+func luaLongString(s string) string {
+	level := ""
+	for strings.Contains(s+"]", "]"+level+"]") {
+		level += "="
+	}
+	return "[" + level + "[" + s + "]" + level + "]"
 }
 
 func buildAppendExecPlan(logTag, configPath, execLine, binary string, argvPrefix ...string) (launchPlan, error) {
@@ -209,15 +219,19 @@ func buildAqueousPlan(configPath, qsCmd string) (launchPlan, error) {
 	}, nil
 }
 
-func isHyprlandLuaConfig(configPath string) bool {
+func IsHyprlandLuaConfig(configPath string, content []byte) bool {
 	if strings.HasSuffix(configPath, ".lua") {
 		return true
 	}
-	content, err := os.ReadFile(configPath)
-	if err != nil {
-		return false
+	for line := range strings.Lines(string(content)) {
+		if strings.HasPrefix(strings.TrimSpace(line), "#") {
+			continue
+		}
+		if hyprlandLuaPattern.MatchString(line) {
+			return true
+		}
 	}
-	return hyprlandLuaPattern.Match(content)
+	return false
 }
 
 func writeTempConfig(content, suffix string) (string, error) {

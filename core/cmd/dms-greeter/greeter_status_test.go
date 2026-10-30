@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -18,5 +20,35 @@ audit: type=1400 audit(1.0:9): apparmor="DENIED" operation="open" profile="cupsd
 	}
 	if len(samples) != 1 || !strings.Contains(samples[0], "journal/stdout") {
 		t.Fatalf("samples = %q", samples)
+	}
+}
+
+func TestHyprlandConfigWarning(t *testing.T) {
+	dir := t.TempDir()
+	hyprlang := filepath.Join(dir, "hyprland.conf")
+	lua := filepath.Join(dir, "greeter.conf")
+	if err := os.WriteFile(hyprlang, []byte("exec-once = waybar\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(lua, []byte("hl.env(\"A\", \"1\")\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		command string
+		warn    bool
+	}{
+		{"/usr/bin/dms-greeter --command hyprland -C " + hyprlang, true},
+		{"/usr/bin/dms-greeter --command hyprland --config=\"" + hyprlang + "\"", true},
+		{"/usr/bin/dms-greeter --command hyprland -C " + lua, false},
+		{"/usr/bin/dms-greeter --command hyprland -C " + hyprlang + " -C " + lua, false},
+		{"/usr/bin/dms-greeter --command hyprland -c " + hyprlang, false},
+		{"/usr/bin/dms-greeter --command hyprland", false},
+	}
+	for _, tt := range tests {
+		got := hyprlandConfigWarning(tt.command)
+		if (got != "") != tt.warn || (tt.warn && !strings.Contains(got, hyprlang)) {
+			t.Errorf("hyprlandConfigWarning(%q) = %q, want warning %v", tt.command, got, tt.warn)
+		}
 	}
 }
