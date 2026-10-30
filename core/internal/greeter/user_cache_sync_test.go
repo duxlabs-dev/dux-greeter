@@ -178,9 +178,10 @@ func TestLinkUserSlotReplacesSnapshot(t *testing.T) {
 	root := t.TempDir()
 	homeDir := filepath.Join(root, "home")
 	sources := userSlotSources{
-		settings: filepath.Join(homeDir, ".config", "dms", "settings.json"),
-		session:  filepath.Join(homeDir, ".local", "state", "dms", "session.json"),
-		colors:   filepath.Join(homeDir, ".cache", "dms", "dms-colors.json"),
+		settings:    filepath.Join(homeDir, ".config", "dms", "settings.json"),
+		session:     filepath.Join(homeDir, ".local", "state", "dms", "session.json"),
+		colors:      filepath.Join(homeDir, ".cache", "dms", "dms-colors.json"),
+		videoFrames: filepath.Join(homeDir, ".cache", "dms", "video-wallpaper"),
 	}
 	writeTestFile(t, sources.settings, `{"currentThemeName":"blue"}`)
 	writeTestFile(t, sources.session, `{"wallpaperPath":"/x.jpg"}`)
@@ -199,7 +200,7 @@ func TestLinkUserSlotReplacesSnapshot(t *testing.T) {
 		t.Fatalf("linkUserSlot returned error: %v", err)
 	}
 
-	for name, source := range map[string]string{"settings.json": sources.settings, "session.json": sources.session, "colors.json": sources.colors} {
+	for name, source := range map[string]string{"settings.json": sources.settings, "session.json": sources.session, "colors.json": sources.colors, "video-wallpaper": sources.videoFrames} {
 		target, err := os.Readlink(filepath.Join(userDir, name))
 		if err != nil {
 			t.Fatalf("expected %s to be a symlink: %v", name, err)
@@ -344,5 +345,50 @@ func TestSnapshotLocalizesLockScreenWallpaper(t *testing.T) {
 	}
 	if _, err := os.Stat(want); err != nil {
 		t.Fatalf("expected lock wallpaper copy: %v", err)
+	}
+}
+
+func TestSnapshotShowsVideoWallpaperFrame(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	homeDir := filepath.Join(root, "home")
+	sources := newUserSlotSources(homeDir)
+	writeTestFile(t, sources.colors, `{}`)
+	withFrame := filepath.Join(homeDir, "Videos", "rain.MP4")
+	withoutFrame := filepath.Join(homeDir, "Videos", "sea.webm")
+	writeTestFile(t, withFrame, "video")
+	writeTestFile(t, withoutFrame, "video")
+	writeTestFile(t, videoWallpaperFrame(sources.videoFrames, withFrame), "frame")
+
+	userDir := filepath.Join(root, "users", "alice")
+	stale := filepath.Join(userDir, videoWallpaperFramesName)
+	if err := os.MkdirAll(userDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(sources.videoFrames, stale); err != nil {
+		t.Fatal(err)
+	}
+	session := map[string]any{
+		"wallpaperPath":     withFrame,
+		"monitorWallpapers": map[string]any{"DP-1": withoutFrame},
+	}
+	opts := userSlotSyncOpts{profileOnly: true, username: "alice", directWrite: func(string) bool { return true }}
+	if err := writeUserSlotSnapshot(homeDir, userDir, sources, map[string]any{}, session, opts); err != nil {
+		t.Fatalf("writeUserSlotSnapshot returned error: %v", err)
+	}
+
+	want := filepath.Join(userDir, "wallpaper.jpg")
+	if session["wallpaperPath"] != want {
+		t.Fatalf("wallpaperPath = %v, want the copied frame %q", session["wallpaperPath"], want)
+	}
+	if data, _ := os.ReadFile(want); string(data) != "frame" {
+		t.Fatalf("copied wallpaper = %q, want the video frame", data)
+	}
+	if got := session["monitorWallpapers"].(map[string]any)["DP-1"]; got != withoutFrame {
+		t.Fatalf("a video without a frame must keep its path, got %v", got)
+	}
+	if _, err := os.Lstat(stale); !os.IsNotExist(err) {
+		t.Fatalf("expected the live frames link to be removed from a snapshot slot")
 	}
 }
