@@ -94,7 +94,7 @@ var greeterLaunchSessionCmd = &cobra.Command{
 			if err != nil {
 				log.Fatalf("failed to get user home directory: %v", err)
 			}
-			if err := greeter.LaunchSessionFromMemory(cacheDir, homeDir); err != nil {
+			if err := greeter.LaunchSessionFromMemory(cacheDir, homeDir, sessionID); err != nil {
 				log.Fatalf("failed to launch remembered greeter session: %v", err)
 			}
 			return
@@ -215,7 +215,7 @@ func init() {
 	greeterSyncCmd.Flags().BoolP("profile", "p", false, "Sync only your per-user greeter slot (no sudo; for secondary accounts)")
 	greeterSyncCmd.Flags().Bool("autologin", false, "Apply only greeter auto-login on startup settings to greetd (no theme or auth sync)")
 
-	greeterLaunchSessionCmd.Flags().String("session-id", "", "Desktop session id to launch")
+	greeterLaunchSessionCmd.Flags().String("session-id", "", "Desktop session id to launch (with --from-memory: fallback when greeter memory is unreadable)")
 	greeterLaunchSessionCmd.Flags().Bool("from-memory", false, "Resolve the session id from greeter memory")
 	greeterLaunchSessionCmd.Flags().String("cache-dir", greeter.GreeterCacheDir, "Greeter cache directory")
 

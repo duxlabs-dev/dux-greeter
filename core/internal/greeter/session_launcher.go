@@ -197,16 +197,28 @@ func LaunchSessionByID(sessionID string) error {
 	return syscall.Exec(resolved, argv, env)
 }
 
-func LaunchSessionFromMemory(cacheDir, homeDir string) error {
-	enabled, _, sessionID, err := resolveGreeterAutoLoginState(cacheDir, homeDir)
+func LaunchSessionFromMemory(cacheDir, homeDir, fallbackSessionID string) error {
+	sessionID, err := resolveLaunchSessionID(cacheDir, homeDir, fallbackSessionID, os.ReadFile)
 	if err != nil {
 		return err
 	}
-	if !enabled {
-		return fmt.Errorf("greeter auto-login is disabled")
-	}
-	if sessionID == "" {
-		return fmt.Errorf("greeter auto-login has no remembered session")
-	}
 	return LaunchSessionByID(sessionID)
+}
+
+// Users dropped from the greeter group cannot read the cache, so sync bakes a fallback id.
+func resolveLaunchSessionID(cacheDir, homeDir, fallbackSessionID string, readMemory func(string) ([]byte, error)) (string, error) {
+	enabled, _, sessionID, err := resolveGreeterAutoLoginStateWith(cacheDir, homeDir, readMemory)
+	switch {
+	case err != nil && os.IsPermission(err) && fallbackSessionID != "":
+		return fallbackSessionID, nil
+	case err != nil && os.IsPermission(err):
+		return "", fmt.Errorf("%w (run 'dms-greeter sync --autologin' to refresh the auto-login session)", err)
+	case err != nil:
+		return "", err
+	case !enabled:
+		return "", fmt.Errorf("greeter auto-login is disabled")
+	case sessionID == "":
+		return "", fmt.Errorf("greeter auto-login has no remembered session")
+	}
+	return sessionID, nil
 }
