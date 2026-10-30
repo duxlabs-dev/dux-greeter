@@ -1,8 +1,10 @@
--- Minimal Hyprland (Lua) session for greetd — replace _DMS_PATH_ with your DMS checkout.
--- Copy to `/etc/greetd/dms-hypr.lua` alongside `greet-hyprland.sh`.
+-- Hyprland 0.55+ greeter config: dms-greeter --command hyprland -C /etc/greetd/dms-hypr.lua
+-- The launcher appends the greeter launch itself.
 
 hl.env("DMS_RUN_GREETER", "1")
 
-hl.on("hyprland.start", function()
-	hl.exec_cmd("sh -c \"qs -p _DMS_PATH_; hyprctl dispatch 'hl.dsp.exit()'\"")
-end)
+hl.config({
+	misc = {
+		disable_hyprland_logo = true,
+	},
+})

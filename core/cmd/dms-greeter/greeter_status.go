@@ -10,6 +10,7 @@ import (
 
 	"github.com/duxlabs-dev/dux-greeter/core/internal/distros"
 	"github.com/duxlabs-dev/dux-greeter/core/internal/greeter"
+	"github.com/duxlabs-dev/dux-greeter/core/internal/launcher"
 	sharedpam "github.com/duxlabs-dev/dux-greeter/core/internal/pam"
 	"github.com/duxlabs-dev/dux-greeter/core/internal/utils"
 )
@@ -181,6 +182,35 @@ func extractGreeterShellDirFromCommand(command string) string {
 	return ""
 }
 
+// Last occurrence wins, as pflag resolves repeated flags.
+func extractCompositorConfigFromCommand(command string) string {
+	tokens := strings.Fields(command)
+	path := ""
+	for i := 0; i < len(tokens); i++ {
+		token := strings.Trim(tokens[i], "\"")
+		switch {
+		case (token == "-C" || token == "--config") && i+1 < len(tokens):
+			path = strings.Trim(tokens[i+1], "\"")
+			i++
+		case strings.HasPrefix(token, "--config="):
+			path = strings.Trim(strings.TrimPrefix(token, "--config="), "\"")
+		}
+	}
+	return path
+}
+
+func hyprlandConfigWarning(command string) string {
+	path := extractCompositorConfigFromCommand(command)
+	if path == "" {
+		return ""
+	}
+	content, err := os.ReadFile(path)
+	if err != nil || launcher.IsHyprlandLuaConfig(path, content) {
+		return ""
+	}
+	return fmt.Sprintf("  ⚠ Hyprland 0.57 only reads Lua config; %s is ignored and the built-in config is used", path)
+}
+
 func installHint() string {
 	return "Run 'dms-greeter install' to set up the greeter"
 }
@@ -246,6 +276,9 @@ func checkGreeterStatus() error {
 				fmt.Println("  Compositor: niri")
 			case "hyprland":
 				fmt.Println("  Compositor: Hyprland")
+				if warning := hyprlandConfigWarning(configuredCommand); warning != "" {
+					fmt.Println(warning)
+				}
 			case "sway":
 				fmt.Println("  Compositor: sway")
 			case "aqueous":
