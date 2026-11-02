@@ -674,7 +674,7 @@ Item {
                 LockActionButton {
                     id: revealButton
 
-                    activeFocusOnTab: false
+                    focusPolicy: Qt.NoFocus
                     Accessible.name: passwordBox.showPassword ? I18n.tr("Hide password") : I18n.tr("Show password")
 
                     anchors.right: externalAuthButton.visible ? externalAuthButton.left : (virtualKeyboardButton.visible ? virtualKeyboardButton.left : (enterButton.visible ? enterButton.left : parent.right))
