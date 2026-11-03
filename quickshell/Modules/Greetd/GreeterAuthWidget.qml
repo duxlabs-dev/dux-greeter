@@ -498,6 +498,7 @@ Item {
 
                     property bool syncingFromState: false
                     readonly property bool masked: GreeterState.showPasswordInput && !passwordBox.showPassword
+                    readonly property bool dotted: root.dots && masked
                     readonly property bool tabStartsExternalAuth: GreeterState.showPasswordInput && text.length === 0 && (root.host?.greeterExternalAuthAvailable ?? false) && !root.host.externalAuthInProgress && !GreeterState.pendingPasswordResponse && Greetd.state === GreetdState.Inactive && !GreeterState.unlocking
 
                     anchors.left: placeholder.left
@@ -509,11 +510,16 @@ Item {
                     color: "transparent"
                     border.width: 0
                     enabled: !root.pickerPhase || GreeterState.showPasswordInput
-                    opacity: (root.pickerPhase && !GreeterState.showPasswordInput) || dotViewport.visible ? 0 : 1
+                    opacity: root.pickerPhase && !GreeterState.showPasswordInput ? 0 : 1
                     focus: !root.pickerPhase || GreeterState.showPasswordInput
                     echoMode: masked ? TextInput.Password : TextInput.Normal
-                    textColor: root.contained ? Theme.surfaceText : root.plainColor
+                    textColor: {
+                        if (dotted)
+                            return root.failed ? Theme.error : root.accentColor;
+                        return root.contained ? Theme.surfaceText : root.plainColor;
+                    }
                     font.pixelSize: masked ? (root.contained ? Theme.fontSizeLarge : Theme.fontSizeXLarge) : Theme.fontSizeMedium
+                    font.letterSpacing: dotted ? Theme.spacingXS : 0
                     keyNavigationTab: tabStartsExternalAuth ? null : (virtualKeyboardButton.visible ? virtualKeyboardButton : (root.host?.sessionDropdownItem ?? inputField))
                     keyNavigationBacktab: root.host?.sessionDropdownItem ?? inputField
                     keyForwardTargets: [inputKeyHandler]
@@ -587,7 +593,7 @@ Item {
                     id: placeholder
 
                     anchors.left: lockIconContainer.right
-                    anchors.leftMargin: root.minimal ? 0 : Theme.spacingM
+                    anchors.leftMargin: root.minimal || root.dots ? 0 : Theme.spacingM
                     anchors.right: (GreeterState.showPasswordInput && revealButton.visible ? revealButton.left : (externalAuthButton.visible ? externalAuthButton.left : (virtualKeyboardButton.visible ? virtualKeyboardButton.left : (enterButton.visible ? enterButton.left : parent.right))))
                     anchors.rightMargin: Theme.spacingXXS
                     anchors.verticalCenter: parent.verticalCenter
@@ -633,48 +639,17 @@ Item {
                     }
                 }
 
-                Item {
-                    id: dotViewport
-                    anchors.left: parent.left
-                    anchors.leftMargin: Theme.spacingM
-                    anchors.right: placeholder.right
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    clip: true
-                    visible: root.dots && GreeterState.showPasswordInput && !passwordBox.showPassword
-
-                    Row {
-                        x: Math.min(0, dotViewport.width - width)
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: Theme.spacingS
-
-                        Repeater {
-                            model: Math.max(1, GreeterState.passwordBuffer.length)
-
-                            Rectangle {
-                                required property int index
-                                readonly property bool filled: index < GreeterState.passwordBuffer.length
-                                readonly property color tone: root.failed ? Theme.error : root.accentColor
-
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: Theme.iconSizeSmall
-                                height: width
-                                radius: Theme.fullRadius(width, height)
-                                color: filled ? tone : "transparent"
-                                border.width: Theme.outlineWidthFocused
-                                border.color: filled ? tone : Theme.withAlpha(root.plainColor, Theme.pendingOpacity)
-                                scale: filled ? 1 : 0.8
-
-                                Behavior on scale {
-                                    NumberAnimation {
-                                        duration: LockMetrics.shakeDuration
-                                        easing.type: Easing.BezierSpline
-                                        easing.bezierCurve: Theme.expressiveCurves.expressiveFastSpatial
-                                    }
-                                }
-                            }
-                        }
-                    }
+                Rectangle {
+                    anchors.left: placeholder.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: Theme.iconSizeSmall
+                    height: width
+                    radius: Theme.fullRadius(width, height)
+                    color: "transparent"
+                    border.width: Theme.outlineWidthFocused
+                    border.color: Theme.withAlpha(root.plainColor, Theme.pendingOpacity)
+                    scale: 0.8
+                    visible: inputField.dotted && inputField.text.length === 0
                 }
 
                 LockActionButton {
