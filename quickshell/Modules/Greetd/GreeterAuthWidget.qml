@@ -134,6 +134,8 @@ Item {
                             return Theme.withAlpha(Theme.error, Theme.pendingOpacity);
                         if (root.authenticating || GreeterState.passwordBuffer.length === 0)
                             return Theme.withAlpha(root.plainColor, Theme.stateLayerDrag);
+                        if (inputField.allSelected)
+                            return root.accentColor;
                         return Theme.withAlpha(root.accentColor, Theme.pendingOpacity);
                     }
                     strokeWidth: root.ringStroke
@@ -491,6 +493,7 @@ Item {
                     id: inputField
 
                     property bool syncingFromState: false
+                    readonly property bool allSelected: text.length > 0 && selectionStart === 0 && selectionEnd === text.length
 
                     anchors.fill: parent
                     anchors.leftMargin: lockIconContainer.width + Theme.spacingM * 2
@@ -644,6 +647,15 @@ Item {
                     clip: true
                     visible: !root.dots || passwordBox.showPassword || !GreeterState.showPasswordInput
 
+                    Rectangle {
+                        x: echoText.x
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: echoText.contentWidth
+                        height: echoText.contentHeight
+                        color: root.accentColor
+                        visible: inputField.allSelected && echoText.opacity > 0
+                    }
+
                     StyledText {
                         id: echoText
                         x: Math.min(0, textViewport.width - implicitWidth)
@@ -653,7 +665,11 @@ Item {
                                 return GreeterState.usernameInput;
                             return passwordBox.showPassword ? GreeterState.passwordBuffer : "•".repeat(GreeterState.passwordBuffer.length);
                         }
-                        color: root.contained ? Theme.surfaceText : root.plainColor
+                        color: {
+                            if (inputField.allSelected)
+                                return Theme.onPrimary;
+                            return root.contained ? Theme.surfaceText : root.plainColor;
+                        }
                         font.pixelSize: (GreeterState.showPasswordInput && !passwordBox.showPassword) ? (root.contained ? Theme.fontSizeLarge : Theme.fontSizeXLarge) : Theme.fontSizeMedium
                         opacity: (GreeterState.showPasswordInput ? GreeterState.passwordBuffer.length > 0 : (root.pickerPhase ? false : GreeterState.usernameInput.length > 0)) ? 1 : 0
                         wrapMode: Text.NoWrap
@@ -672,15 +688,26 @@ Item {
                 Item {
                     id: dotViewport
                     anchors.left: parent.left
-                    anchors.leftMargin: Theme.spacingM
+                    anchors.leftMargin: Theme.spacingM - Theme.spacingXS
                     anchors.right: placeholder.right
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
                     clip: true
                     visible: root.dots && GreeterState.showPasswordInput && !passwordBox.showPassword
 
+                    Rectangle {
+                        x: dotRow.x - Theme.spacingXS
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: dotRow.width + Theme.spacingXS * 2
+                        height: dotRow.height + Theme.spacingXS * 2
+                        radius: Theme.fullRadius(width, height)
+                        color: root.accentColor
+                        visible: inputField.allSelected
+                    }
+
                     Row {
-                        x: Math.min(0, dotViewport.width - width)
+                        id: dotRow
+                        x: Math.min(Theme.spacingXS, dotViewport.width - width - Theme.spacingXS)
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: Theme.spacingS
 
@@ -690,7 +717,11 @@ Item {
                             Rectangle {
                                 required property int index
                                 readonly property bool filled: index < GreeterState.passwordBuffer.length
-                                readonly property color tone: root.failed ? Theme.error : root.accentColor
+                                readonly property color tone: {
+                                    if (root.failed)
+                                        return Theme.error;
+                                    return inputField.allSelected ? Theme.onPrimary : root.accentColor;
+                                }
 
                                 anchors.verticalCenter: parent.verticalCenter
                                 width: Theme.iconSizeSmall
