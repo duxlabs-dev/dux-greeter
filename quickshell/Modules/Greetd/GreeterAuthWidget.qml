@@ -516,24 +516,30 @@ Item {
                     font.pixelSize: masked ? (root.contained ? Theme.fontSizeLarge : Theme.fontSizeXLarge) : Theme.fontSizeMedium
                     keyNavigationTab: tabStartsExternalAuth ? null : (virtualKeyboardButton.visible ? virtualKeyboardButton : (root.host?.sessionDropdownItem ?? inputField))
                     keyNavigationBacktab: root.host?.sessionDropdownItem ?? inputField
+                    keyForwardTargets: [inputKeyHandler]
 
-                    Keys.onPressed: event => {
-                        if (event.key === Qt.Key_Tab && tabStartsExternalAuth && !(event.modifiers & (Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier))) {
-                            root.host.startAuthSession(false);
-                            event.accepted = true;
-                            return;
-                        }
-                        if (event.key !== Qt.Key_Escape || !GreeterState.showPasswordInput)
-                            return;
-                        if (text.length > 0) {
-                            root.clearInput();
-                            GreeterState.passwordBuffer = "";
-                            event.accepted = true;
-                            return;
-                        }
-                        if (root.pickerAvailable && !GreeterState.unlocking) {
-                            root.host.returnToUserPicker();
-                            event.accepted = true;
+                    Item {
+                        id: inputKeyHandler
+
+                        Keys.onPressed: event => {
+                            event.accepted = false;
+                            if (event.key === Qt.Key_Tab && inputField.tabStartsExternalAuth && !(event.modifiers & (Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier))) {
+                                root.host.startAuthSession(false);
+                                event.accepted = true;
+                                return;
+                            }
+                            if (event.key !== Qt.Key_Escape || !GreeterState.showPasswordInput)
+                                return;
+                            if (inputField.text.length > 0) {
+                                root.clearInput();
+                                GreeterState.passwordBuffer = "";
+                                event.accepted = true;
+                                return;
+                            }
+                            if (root.pickerAvailable && !GreeterState.unlocking) {
+                                root.host.returnToUserPicker();
+                                event.accepted = true;
+                            }
                         }
                     }
 
