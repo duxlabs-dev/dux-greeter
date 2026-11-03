@@ -27,7 +27,7 @@ Item {
     readonly property bool minimal: !pickerPhase && style === "minimal"
     readonly property string profileVisibility: cfg.profileVisibility ?? (cfg.showProfileImage === false ? "never" : "always")
     readonly property string passwordVisibility: cfg.passwordVisibility ?? (cfg.showPasswordField === false ? "typing" : "always")
-    readonly property bool authenticating: Greetd.state !== GreetdState.Inactive && !(host?.awaitingExternalAuth ?? false) && !(host?.pendingPasswordResponse ?? false)
+    readonly property bool authenticating: Greetd.state !== GreetdState.Inactive && !GreeterState.awaitingExternalAuth && !GreeterState.pendingPasswordResponse
     readonly property bool failed: GreeterState.pamState !== ""
     readonly property bool inputVisible: !GreeterState.showPasswordInput || passwordVisibility !== "typing" || GreeterState.passwordBuffer.length > 0 || authenticating || GreeterState.unlocking || failed
     readonly property bool pickerAvailable: host?.pickerAvailable ?? false
@@ -88,6 +88,11 @@ Item {
         }
 
         function onPasswordBufferChanged() {
+            if (GreeterState.showPasswordInput && inputField.text !== GreeterState.passwordBuffer) {
+                inputField.syncingFromState = true;
+                inputField.text = GreeterState.passwordBuffer;
+                inputField.syncingFromState = false;
+            }
             const grew = GreeterState.passwordBuffer.length > root.typedCount;
             root.typedCount = GreeterState.passwordBuffer.length;
             if (!grew)
@@ -517,7 +522,7 @@ Item {
                     KeyNavigation.backtab: root.host?.sessionDropdownItem ?? inputField
 
                     Keys.onPressed: event => {
-                        if (event.key === Qt.Key_Tab && GreeterState.showPasswordInput && (!text || text.length === 0) && !(event.modifiers & (Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier)) && root.host.greeterExternalAuthAvailable && !root.host.externalAuthInProgress && !root.host.pendingPasswordResponse && Greetd.state === GreetdState.Inactive && !GreeterState.unlocking) {
+                        if (event.key === Qt.Key_Tab && GreeterState.showPasswordInput && (!text || text.length === 0) && !(event.modifiers & (Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier)) && root.host.greeterExternalAuthAvailable && !root.host.externalAuthInProgress && !GreeterState.pendingPasswordResponse && Greetd.state === GreetdState.Inactive && !GreeterState.unlocking) {
                             root.host.startAuthSession(false);
                             event.accepted = true;
                             return;
@@ -553,7 +558,7 @@ Item {
                         if (GreeterState.showPasswordInput) {
                             GreeterState.passwordBuffer = text;
                             if (!text || text.length === 0)
-                                root.host.passwordSubmitRequested = false;
+                                GreeterState.passwordSubmitRequested = false;
                         } else {
                             GreeterState.usernameInput = text;
                         }
@@ -604,7 +609,7 @@ Item {
                         if (GreeterState.showPasswordInput) {
                             if (root.passwordVisibility !== "always")
                                 return "";
-                            return root.host?.authPromptText || I18n.tr("Password...");
+                            return GreeterState.authPromptText || I18n.tr("Password...");
                         }
                         if (root.pickerPhase)
                             return "";
@@ -893,7 +898,7 @@ Item {
         anchors.left: parent.left
         anchors.right: parent.right
         text: root.host?.authDisplayMessage ?? ""
-        color: (root.host?.authFeedbackMessage ?? "") !== "" ? Theme.error : Theme.lockScreenContentColor
+        color: GreeterState.authFeedbackMessage !== "" ? Theme.error : Theme.lockScreenContentColor
         font.pixelSize: Theme.fontSizeSmall
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap

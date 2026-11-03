@@ -54,3 +54,22 @@ func TestGreeterExternalAuthTabTriggerAndFaceSupport(t *testing.T) {
 		}
 	}
 }
+
+func TestGreeterAuthSessionFlagsLiveInSharedState(t *testing.T) {
+	content, err := os.ReadFile("../../../quickshell/Modules/Greetd/GreeterContent.qml")
+	if err != nil {
+		t.Fatalf("read greeter QML: %v", err)
+	}
+	state, err := os.ReadFile("../../../quickshell/Modules/Greetd/GreeterState.qml")
+	if err != nil {
+		t.Fatalf("read greeter state QML: %v", err)
+	}
+	for _, flag := range []string{"awaitingExternalAuth", "pendingPasswordResponse", "passwordSubmitRequested", "authPromptText", "authFeedbackMessage"} {
+		if strings.Contains(string(content), "property bool "+flag) || strings.Contains(string(content), "property string "+flag) {
+			t.Fatalf("%s must not be a per-screen GreeterContent property; only the primary screen handles greetd signals", flag)
+		}
+		if !strings.Contains(string(state), "property bool "+flag) && !strings.Contains(string(state), "property string "+flag) {
+			t.Fatalf("GreeterState must declare %s so every screen sees the same auth session", flag)
+		}
+	}
+}

@@ -16,6 +16,11 @@ Singleton {
     property string selectedSessionDesktopNames: ""
     property string pamState: ""
     property bool unlocking: false
+    property bool awaitingExternalAuth: false
+    property bool pendingPasswordResponse: false
+    property bool passwordSubmitRequested: false
+    property string authPromptText: ""
+    property string authFeedbackMessage: ""
 
     property var sessionList: []
     property var sessionExecs: []
@@ -31,5 +36,10 @@ Singleton {
         usernameInput = "";
         passwordBuffer = "";
         pamState = "";
+        awaitingExternalAuth = false;
+        pendingPasswordResponse = false;
+        passwordSubmitRequested = false;
+        authPromptText = "";
+        authFeedbackMessage = "";
     }
 }
