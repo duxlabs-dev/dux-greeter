@@ -98,6 +98,7 @@ Item {
     property bool weatherInitialized: false
     property int memoryFlushDelayMs: 120
     property string pendingLaunchCommand: ""
+    property string pendingLaunchSessionId: ""
     property var pendingLaunchEnv: []
     property int passwordFailureCount: 0
     property int passwordAttemptLimitHint: 0
@@ -1166,6 +1167,7 @@ Item {
             if (root.autoLoginOnSuccess)
                 greeterAutoLoginPendingProcess.running = true;
             pendingLaunchCommand = sessionCmd;
+            pendingLaunchSessionId = sessionDesktopId;
             pendingLaunchEnv = sessionLaunchEnv(sessionDesktopId, sessionDesktopNames).concat(["DMS_GREETER_AUTH_TIME=" + Math.floor(Date.now() / 1000)]);
             if (Quickshell.env("DMS_VOID") === "1")
                 pendingLaunchEnv.push("LIBSEAT_BACKEND=logind");
@@ -1217,13 +1219,15 @@ Item {
             if (!pendingLaunchCommand)
                 return;
             const sessionCommand = pendingLaunchCommand;
+            const sessionId = pendingLaunchSessionId;
             const launchEnv = pendingLaunchEnv;
             pendingLaunchCommand = "";
+            pendingLaunchSessionId = "";
             pendingLaunchEnv = [];
             const sessionArgs = sessionCommand.trim().split(/\s+/);
+            const launchArgs = sessionId ? [Quickshell.env("DMS_GREETER_BIN") || "dms-greeter", "launch-session", "--session-id", sessionId] : sessionArgs;
             const needsVoidDbusSession = Quickshell.env("DMS_VOID") === "1" && !Quickshell.env("DBUS_SESSION_BUS_ADDRESS") && sessionArgs[0] !== "dbus-run-session";
-            const launchArgs = needsVoidDbusSession ? ["dbus-run-session"].concat(sessionArgs) : sessionArgs;
-            Greetd.launch(launchArgs, launchEnv);
+            Greetd.launch(needsVoidDbusSession ? ["dbus-run-session"].concat(launchArgs) : launchArgs, launchEnv);
         }
     }
 

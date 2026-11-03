@@ -113,6 +113,9 @@ func setupEnvironment(opts Options) error {
 		"XDG_DATA_HOME":            filepath.Join(opts.CacheDir, ".local/share"),
 		"XDG_CACHE_HOME":           filepath.Join(opts.CacheDir, ".cache"),
 	}
+	if exe, err := os.Executable(); err == nil {
+		env["DMS_GREETER_BIN"] = exe
+	}
 	for key, value := range env {
 		if err := os.Setenv(key, value); err != nil {
 			return err

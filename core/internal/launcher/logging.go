@@ -33,16 +33,20 @@ func execCompositor(plan launchPlan, cacheDir string, debug bool) error {
 	if err != nil {
 		return err
 	}
-	if err := redirectStdio(sink); err != nil {
+	if err := RedirectStdio(sink); err != nil {
 		return err
 	}
 	return syscall.Exec(binary, plan.argv, cmd.Environ())
 }
 
+func JournalStream(identifier string) (*os.File, error) {
+	return openJournalStream(journalStreamPath, "dms-greeter/"+identifier)
+}
+
 // A separate log reader process would leave the compositor writing into a dead
 // pipe if it died, so the sink is opened here and inherited across exec.
 func logSink(logTag, cacheDir string) (*os.File, error) {
-	if journal, err := openJournalStream(journalStreamPath, "dms-greeter/"+logTag); err == nil {
+	if journal, err := JournalStream(logTag); err == nil {
 		return journal, nil
 	}
 
@@ -72,10 +76,10 @@ func openJournalStream(socketPath, identifier string) (*os.File, error) {
 	return conn.File()
 }
 
-func redirectStdio(sink *os.File) error {
+func RedirectStdio(sink *os.File) error {
 	for _, fd := range []int{int(os.Stdout.Fd()), int(os.Stderr.Fd())} {
 		if err := syscall.Dup3(int(sink.Fd()), fd, 0); err != nil {
-			return fmt.Errorf("redirecting compositor output: %w", err)
+			return fmt.Errorf("redirecting output: %w", err)
 		}
 	}
 	return nil

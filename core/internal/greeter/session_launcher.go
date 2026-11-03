@@ -7,7 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
+
+	"github.com/duxlabs-dev/dux-greeter/core/internal/launcher"
 )
+
+var openSessionJournal = launcher.JournalStream
 
 func sessionDesktopIDFromPath(path string) string {
 	id := strings.TrimSpace(path)
@@ -194,7 +198,41 @@ func LaunchSessionByID(sessionID string) error {
 	}
 
 	env := append(os.Environ(), sessionEnv(sessionID, entry)...)
+	redirectSessionOutput()
 	return syscall.Exec(resolved, argv, env)
+}
+
+// greetd hands the session the VT as stdio, so any wrapper chatter lands on the
+// console and wakes fbcon before the compositor starts. Logging failures are not
+// worth refusing a login over.
+func redirectSessionOutput() {
+	sink, err := sessionLogSink()
+	if err != nil {
+		return
+	}
+	_ = launcher.RedirectStdio(sink)
+}
+
+func sessionLogSink() (*os.File, error) {
+	if journal, err := openSessionJournal("session"); err == nil {
+		return journal, nil
+	}
+	logDir := filepath.Join(userStateDir(), "dms-greeter")
+	if err := os.MkdirAll(logDir, 0o700); err != nil {
+		return nil, err
+	}
+	return os.OpenFile(filepath.Join(logDir, "session.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
+}
+
+func userStateDir() string {
+	if stateHome := os.Getenv("XDG_STATE_HOME"); stateHome != "" {
+		return stateHome
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return os.TempDir()
+	}
+	return filepath.Join(home, ".local", "state")
 }
 
 func LaunchSessionFromMemory(cacheDir, homeDir, fallbackSessionID string) error {
