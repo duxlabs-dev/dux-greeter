@@ -748,7 +748,7 @@ Item {
                 LockActionButton {
                     id: enterButton
 
-                    activeFocusOnTab: false
+                    focusPolicy: Qt.NoFocus
                     Accessible.name: I18n.tr("Login")
 
                     anchors.right: parent.right
@@ -794,34 +794,38 @@ Item {
                 }
             }
         }
+    }
 
-        Item {
-            Layout.fillWidth: true
-            Layout.preferredHeight: (root.host?.showAccountSwitchLink ?? false) ? Theme.buttonHeightXS : 0
-            visible: root.host?.showAccountSwitchLink ?? false
+    Item {
+        id: accountSwitchLink
 
-            StyledText {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: I18n.tr("Back to user list", "greeter link to return from manual username entry to user picker")
-                color: Theme.primary
-                font.pixelSize: Theme.fontSizeSmall
-                font.underline: accountSwitchMouse.containsMouse
-            }
+        anchors.top: authColumn.bottom
+        anchors.topMargin: visible ? authColumn.spacing : 0
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: visible ? Theme.buttonHeightXS : 0
+        visible: root.host?.showAccountSwitchLink ?? false
 
-            MouseArea {
-                id: accountSwitchMouse
+        StyledText {
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: I18n.tr("Back to user list", "greeter link to return from manual username entry to user picker")
+            color: Theme.primary
+            font.pixelSize: Theme.fontSizeSmall
+            font.underline: accountSwitchMouse.containsMouse
+        }
 
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: root.host.returnToUserListFromManualEntry()
-            }
+        MouseArea {
+            id: accountSwitchMouse
+
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: root.host.returnToUserListFromManualEntry()
         }
     }
 
-    // Hangs below the box like the DMS lock widget so a centred box centres the field.
     StyledText {
-        anchors.top: authColumn.bottom
+        anchors.top: accountSwitchLink.bottom
         anchors.topMargin: Theme.spacingS
         anchors.left: parent.left
         anchors.right: parent.right
