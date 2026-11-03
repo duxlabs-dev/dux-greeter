@@ -19,6 +19,7 @@ Singleton {
     property string lastSessionId: ""
     property string lastSessionDesktopId: ""
     property string lastSuccessfulUser: ""
+    property var userSessions: ({})
     property bool memoryReady: false
 
     Component.onCompleted: {
@@ -33,11 +34,35 @@ Singleton {
             lastSessionId = rememberLastSession ? (memory.lastSessionId || "") : "";
             lastSessionDesktopId = rememberLastSession ? (memory.lastSessionDesktopId || "") : "";
             lastSuccessfulUser = rememberLastUser ? (memory.lastSuccessfulUser || "") : "";
+            userSessions = rememberLastSession ? parseUserSessions(memory.userSessions) : {};
             if (!rememberLastSession || !rememberLastUser)
                 saveMemory();
         } catch (e) {
             log.warn("Failed to parse greetd memory:", e);
         }
+    }
+
+    function parseUserSessions(raw) {
+        const sessions = {};
+        if (!raw || typeof raw !== "object")
+            return sessions;
+        for (const username in raw) {
+            const entry = raw[username];
+            const sessionId = typeof entry?.sessionId === "string" ? entry.sessionId : "";
+            if (!sessionId)
+                continue;
+            sessions[username] = {
+                sessionId: sessionId,
+                desktopId: typeof entry.desktopId === "string" ? entry.desktopId : ""
+            };
+        }
+        return sessions;
+    }
+
+    function sessionForUser(username) {
+        if (!rememberLastSession || !username)
+            return null;
+        return userSessions[username] || null;
     }
 
     function saveMemory() {
@@ -46,16 +71,19 @@ Singleton {
             memory.lastSessionId = lastSessionId;
         if (rememberLastSession && lastSessionDesktopId)
             memory.lastSessionDesktopId = lastSessionDesktopId;
+        if (rememberLastSession && Object.keys(userSessions).length > 0)
+            memory.userSessions = userSessions;
         if (rememberLastUser && lastSuccessfulUser)
             memory.lastSuccessfulUser = lastSuccessfulUser;
         memoryFileView.setText(JSON.stringify(memory, null, 2));
     }
 
-    function setLastSession(id, desktopId) {
+    function setLastSession(id, desktopId, username) {
         if (!rememberLastSession) {
-            if (lastSessionId !== "" || lastSessionDesktopId !== "") {
+            if (lastSessionId !== "" || lastSessionDesktopId !== "" || Object.keys(userSessions).length > 0) {
                 lastSessionId = "";
                 lastSessionDesktopId = "";
+                userSessions = {};
                 saveMemory();
             }
             return;
@@ -64,6 +92,14 @@ Singleton {
         lastSessionDesktopId = desktopId || "";
         if (!lastSessionId)
             lastSessionDesktopId = "";
+        if (username && lastSessionId) {
+            const sessions = Object.assign({}, userSessions);
+            sessions[username] = {
+                sessionId: lastSessionId,
+                desktopId: lastSessionDesktopId
+            };
+            userSessions = sessions;
+        }
         saveMemory();
     }
 

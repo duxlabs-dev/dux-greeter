@@ -569,6 +569,7 @@ Item {
             return;
         root.manualUsernameEntry = false;
         root.skipAutoSelectUser = true;
+        GreeterState.sessionManuallySelected = false;
         clearAuthFeedback();
         passwordFailureCount = 0;
         externalAuthAutoStartedForUser = "";
@@ -596,13 +597,16 @@ Item {
         const user = (rawValue || "").trim();
         if (!user)
             return;
-        if (GreeterState.username !== user) {
+        const userChanged = GreeterState.username !== user;
+        if (userChanged) {
             passwordFailureCount = 0;
             clearAuthFeedback();
             externalAuthAutoStartedForUser = "";
         }
         root.pickerThemeUsername = user;
         GreeterState.username = user;
+        if (userChanged)
+            finalizeSessionSelection();
         GreeterState.usernameInput = user;
         GreeterState.showPasswordInput = true;
         root.userListOpen = false;
@@ -879,26 +883,38 @@ Item {
         if (!GreetdSettings.settingsLoaded)
             return;
 
-        const savedSession = GreetdSettings.rememberLastSession ? GreetdMemory.lastSessionId : "";
-        const savedDesktopId = GreetdSettings.rememberLastSession ? (GreetdMemory.lastSessionDesktopId || desktopIdFromPath(GreetdMemory.lastSessionId)) : "";
-        if ((savedSession || savedDesktopId) && GreetdSettings.rememberLastSession) {
-            for (var i = 0; i < GreeterState.sessionPaths.length; i++) {
-                if ((savedDesktopId && GreeterState.sessionDesktopIds[i] === savedDesktopId) || (savedSession && GreeterState.sessionPaths[i] === savedSession)) {
-                    GreeterState.currentSessionIndex = i;
-                    GreeterState.selectedSession = GreeterState.sessionExecs[i] || "";
-                    GreeterState.selectedSessionPath = GreeterState.sessionPaths[i];
-                    GreeterState.selectedSessionDesktopId = GreeterState.sessionDesktopIds[i] || "";
-                    GreeterState.selectedSessionDesktopNames = GreeterState.sessionDesktopNames[i] || "";
-                    return;
-                }
+        const saved = rememberedSession();
+        const savedSession = saved?.sessionId || "";
+        const savedDesktopId = saved ? (saved.desktopId || desktopIdFromPath(saved.sessionId)) : "";
+        for (var i = 0; i < GreeterState.sessionPaths.length; i++) {
+            if ((savedDesktopId && GreeterState.sessionDesktopIds[i] === savedDesktopId) || (savedSession && GreeterState.sessionPaths[i] === savedSession)) {
+                selectSessionIndex(i);
+                return;
             }
         }
+        selectSessionIndex(0);
+    }
 
-        GreeterState.currentSessionIndex = 0;
-        GreeterState.selectedSession = GreeterState.sessionExecs[0] || "";
-        GreeterState.selectedSessionPath = GreeterState.sessionPaths[0] || "";
-        GreeterState.selectedSessionDesktopId = GreeterState.sessionDesktopIds[0] || "";
-        GreeterState.selectedSessionDesktopNames = GreeterState.sessionDesktopNames[0] || "";
+    function rememberedSession() {
+        if (!GreetdSettings.rememberLastSession)
+            return null;
+        const forUser = GreetdMemory.sessionForUser(GreeterState.username);
+        if (forUser)
+            return forUser;
+        if (!GreetdMemory.lastSessionId && !GreetdMemory.lastSessionDesktopId)
+            return null;
+        return {
+            sessionId: GreetdMemory.lastSessionId,
+            desktopId: GreetdMemory.lastSessionDesktopId
+        };
+    }
+
+    function selectSessionIndex(index) {
+        GreeterState.currentSessionIndex = index;
+        GreeterState.selectedSession = GreeterState.sessionExecs[index] || "";
+        GreeterState.selectedSessionPath = GreeterState.sessionPaths[index] || "";
+        GreeterState.selectedSessionDesktopId = GreeterState.sessionDesktopIds[index] || "";
+        GreeterState.selectedSessionDesktopNames = GreeterState.sessionDesktopNames[index] || "";
     }
 
     // Highest XDG precedence first, so a Hidden=true file in an earlier dir shadows a later one.
@@ -1138,7 +1154,7 @@ Item {
             GreeterState.unlocking = true;
             launchTimeout.restart();
             if (GreetdSettings.rememberLastSession) {
-                GreetdMemory.setLastSession(sessionPath, sessionDesktopId);
+                GreetdMemory.setLastSession(sessionPath, sessionDesktopId, GreeterState.username);
             } else if (GreetdMemory.lastSessionId || GreetdMemory.lastSessionDesktopId) {
                 GreetdMemory.setLastSession("", "");
             }

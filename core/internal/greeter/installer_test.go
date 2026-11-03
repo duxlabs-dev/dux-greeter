@@ -1,6 +1,7 @@
 package greeter
 
 import (
+	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
@@ -435,7 +436,13 @@ func TestClearGreeterAutoLoginMemory(t *testing.T) {
 	memoryPath := filepath.Join(t.TempDir(), "memory.json")
 	writeTestFile(t, memoryPath, `{
   "autoLoginEnabled": true,
-  "lastSuccessfulUser": "alice"
+  "lastSuccessfulUser": "alice",
+  "userSessions": {
+    "alice": {
+      "sessionId": "/usr/share/wayland-sessions/niri.desktop",
+      "desktopId": "niri.desktop"
+    }
+  }
 }`)
 
 	if err := clearGreeterAutoLoginMemory(memoryPath, ""); err != nil {
@@ -451,6 +458,18 @@ func TestClearGreeterAutoLoginMemory(t *testing.T) {
 	}
 	if !strings.Contains(string(data), "lastSuccessfulUser") {
 		t.Fatalf("expected other memory fields preserved, got: %s", string(data))
+	}
+	var preserved map[string]any
+	if err := json.Unmarshal(data, &preserved); err != nil {
+		t.Fatalf("memory file is not valid JSON after clear: %v", err)
+	}
+	sessions, ok := preserved["userSessions"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected per-user sessions preserved, got: %s", string(data))
+	}
+	alice, _ := sessions["alice"].(map[string]any)
+	if alice["desktopId"] != "niri.desktop" {
+		t.Fatalf("expected alice's session preserved, got: %s", string(data))
 	}
 }
 
