@@ -158,6 +158,7 @@ type userSlotSyncOpts struct {
 	profileOnly  bool
 	username     string
 	directWrite  func(dest string) bool
+	videoFrames  string
 }
 
 func (o userSlotSyncOpts) useDirectWrite(dest string) bool {
@@ -267,16 +268,18 @@ func syncUserGreeterCacheSlot(homeDir, cacheDir, username string, logFunc func(s
 }
 
 type userSlotSources struct {
-	settings string
-	session  string
-	colors   string
+	settings    string
+	session     string
+	colors      string
+	videoFrames string
 }
 
 func newUserSlotSources(homeDir string) userSlotSources {
 	return userSlotSources{
-		settings: filepath.Join(utils.UserDMSDir(homeDir, ".config"), "settings.json"),
-		session:  filepath.Join(utils.UserDMSDir(homeDir, ".local", "state"), "session.json"),
-		colors:   GreeterColorsSource(homeDir),
+		settings:    filepath.Join(utils.UserDMSDir(homeDir, ".config"), "settings.json"),
+		session:     filepath.Join(utils.UserDMSDir(homeDir, ".local", "state"), "session.json"),
+		colors:      GreeterColorsSource(homeDir),
+		videoFrames: VideoWallpaperFramesSource(homeDir),
 	}
 }
 
@@ -314,6 +317,7 @@ func linkUserSlot(userDir string, sources userSlotSources, opts userSlotSyncOpts
 		{"settings.json", sources.settings},
 		{"session.json", sources.session},
 		{"colors.json", sources.colors},
+		{videoWallpaperFramesName, sources.videoFrames},
 	}
 	for _, link := range links {
 		if err := linkSlotEntry(link.source, filepath.Join(userDir, link.name), opts); err != nil {
@@ -365,6 +369,7 @@ func removeUserSlotSnapshotArtifacts(userDir string, opts userSlotSyncOpts) erro
 }
 
 func writeUserSlotSnapshot(homeDir, userDir string, sources userSlotSources, settingsMap, sessionMap map[string]any, opts userSlotSyncOpts) error {
+	opts.videoFrames = sources.videoFrames
 	if customTheme, ok := settingsMap["customThemeFile"].(string); ok && strings.TrimSpace(customTheme) != "" {
 		resolvedTheme := customTheme
 		if !filepath.IsAbs(resolvedTheme) {
@@ -391,6 +396,9 @@ func writeUserSlotSnapshot(homeDir, userDir string, sources userSlotSources, set
 		return err
 	}
 
+	if err := removeSlotEntry(filepath.Join(userDir, videoWallpaperFramesName), opts); err != nil {
+		return err
+	}
 	if err := localizeSessionWallpapers(sessionMap, userDir, opts); err != nil {
 		return err
 	}
@@ -490,6 +498,12 @@ func localizeWallpaperMapField(session map[string]any, key, userDir, prefix stri
 func copyWallpaperIntoUserCache(srcPath, userDir, prefix string, opts userSlotSyncOpts) (string, error) {
 	if strings.TrimSpace(srcPath) == "" {
 		return "", nil
+	}
+	if isVideoWallpaper(srcPath) {
+		if opts.videoFrames == "" {
+			return "", nil
+		}
+		srcPath = videoWallpaperFrame(opts.videoFrames, srcPath)
 	}
 	st, err := os.Stat(srcPath)
 	if err != nil || st.IsDir() {

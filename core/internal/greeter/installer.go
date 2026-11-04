@@ -1437,6 +1437,18 @@ func syncGreeterColorSource(homeDir, cacheDir string, logFunc func(string), sudo
 	return nil
 }
 
+func syncVideoWallpaperFrames(homeDir, cacheDir string, logFunc func(string), sudoPassword string) error {
+	source := VideoWallpaperFramesSource(homeDir)
+	target := filepath.Join(cacheDir, videoWallpaperFramesName)
+	_ = privesc.Run(context.Background(), sudoPassword, "rm", "-f", target)
+	if err := privesc.Run(context.Background(), sudoPassword, "ln", "-sfn", source, target); err != nil {
+		return fmt.Errorf("failed to create symlink for video wallpaper frames (%s -> %s): %w", target, source, err)
+	}
+
+	logFunc("✓ Synced video wallpaper frames")
+	return nil
+}
+
 func SyncDMSConfigs(compositor string, logFunc func(string), sudoPassword string) error {
 	if err := EnsureVoidLogindGreetdCommand(logFunc, sudoPassword); err != nil {
 		return err
@@ -1490,6 +1502,9 @@ func SyncDMSConfigs(compositor string, logFunc func(string), sudoPassword string
 	}
 
 	if err := syncGreeterColorSource(homeDir, cacheDir, logFunc, sudoPassword); err != nil {
+		return err
+	}
+	if err := syncVideoWallpaperFrames(homeDir, cacheDir, logFunc, sudoPassword); err != nil {
 		return err
 	}
 

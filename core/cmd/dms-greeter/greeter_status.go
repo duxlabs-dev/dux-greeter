@@ -367,6 +367,11 @@ func checkGreeterStatus() error {
 			target: filepath.Join(cacheDir, "colors.json"),
 			desc:   "Color theme",
 		},
+		{
+			source: greeter.VideoWallpaperFramesSource(homeDir),
+			target: filepath.Join(cacheDir, "video-wallpaper"),
+			desc:   "Video wallpaper frames",
+		},
 	}
 
 	for _, link := range symlinks {
