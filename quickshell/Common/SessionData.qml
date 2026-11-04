@@ -121,6 +121,16 @@ Singleton {
         return value !== undefined ? value : wallpaperPath;
     }
 
+    // DMS plays video wallpapers and caches one still frame per video;
+    // dms-greeter sync links that cache next to session.json.
+    function getMonitorWallpaperImage(screenName) {
+        const path = getMonitorWallpaper(screenName) || "";
+        const ext = (/\.([^./]+)$/.exec(path)?.[1] ?? "").toLowerCase();
+        if (!["mp4", "webm", "mkv", "mov", "m4v", "avi"].includes(ext))
+            return path;
+        return `${greeterSessionBaseDir}/video-wallpaper/${Qt.md5(path)}.jpg`;
+    }
+
     function getMonitorWallpaperFillMode(screenName) {
         const globalFillMode = (typeof SettingsData !== "undefined") ? SettingsData.wallpaperFillMode : "Fill";
         if (!perMonitorWallpaper)
