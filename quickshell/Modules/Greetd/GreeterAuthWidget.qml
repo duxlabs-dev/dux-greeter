@@ -6,6 +6,7 @@ import QtQuick.Shapes
 import Quickshell.Services.Greetd
 import qs.Common
 import qs.DCommon.Common as DC
+import qs.DCommon.Widgets
 import qs.Services
 import qs.Widgets
 import qs.DCommon.Session
@@ -139,8 +140,6 @@ Item {
                             return Theme.withAlpha(Theme.error, Theme.pendingOpacity);
                         if (root.authenticating || GreeterState.passwordBuffer.length === 0)
                             return Theme.withAlpha(root.plainColor, Theme.stateLayerDrag);
-                        if (inputField.allSelected)
-                            return root.accentColor;
                         return Theme.withAlpha(root.accentColor, Theme.pendingOpacity);
                     }
                     strokeWidth: root.ringStroke
@@ -372,9 +371,9 @@ Item {
                 border.width: {
                     if (!root.contained)
                         return 0;
-                    return inputField.activeFocus ? Math.max(Theme.outlineWidth, Theme.focusRingWidth) : Theme.layerOutlineWidth;
+                    return inputField.inputFocused ? Math.max(Theme.outlineWidth, Theme.focusRingWidth) : Theme.layerOutlineWidth;
                 }
-                border.color: inputField.activeFocus ? Theme.focusRingColor : Theme.outlineMedium
+                border.color: inputField.inputFocused ? Theme.focusRingColor : Theme.outlineMedium
 
                 Behavior on opacity {
                     NumberAnimation {
@@ -389,11 +388,11 @@ Item {
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     visible: root.minimal
-                    height: inputField.activeFocus ? Theme.outlineWidthFocused : Theme.dividerWidth
+                    height: inputField.inputFocused ? Theme.outlineWidthFocused : Theme.dividerWidth
                     color: {
                         if (root.failed)
                             return Theme.error;
-                        return inputField.activeFocus ? root.accentColor : Theme.withAlpha(root.plainColor, Theme.pendingOpacity);
+                        return inputField.inputFocused ? root.accentColor : Theme.withAlpha(root.plainColor, Theme.pendingOpacity);
                     }
 
                     Behavior on color {
@@ -487,69 +486,67 @@ Item {
                         color: {
                             if (root.morph)
                                 return root.failed ? Theme.onErrorContainer : Theme.onPrimaryContainer;
-                            if (inputField.activeFocus)
+                            if (inputField.inputFocused)
                                 return root.accentColor;
                             return root.contained ? Theme.surfaceVariantText : Theme.withAlpha(root.plainColor, Theme.pendingOpacity);
                         }
                     }
                 }
 
-                TextInput {
+                DTextField {
                     id: inputField
 
                     property bool syncingFromState: false
-                    readonly property bool allSelected: text.length > 0 && selectionStart === 0 && selectionEnd === text.length
+                    readonly property bool masked: GreeterState.showPasswordInput && !passwordBox.showPassword
+                    readonly property bool dotted: root.dots && masked
+                    readonly property bool tabStartsExternalAuth: GreeterState.showPasswordInput && text.length === 0 && (root.host?.greeterExternalAuthAvailable ?? false) && !root.host.externalAuthInProgress && !GreeterState.pendingPasswordResponse && Greetd.state === GreetdState.Inactive && !GreeterState.unlocking
 
-                    anchors.fill: parent
-                    anchors.leftMargin: lockIconContainer.width + Theme.spacingM * 2
-                    anchors.rightMargin: {
-                        let margin = Theme.spacingM;
-                        if (GreeterState.showPasswordInput && revealButton.visible)
-                            margin += revealButton.width;
-                        if (externalAuthButton.visible)
-                            margin += externalAuthButton.width;
-                        if (virtualKeyboardButton.visible)
-                            margin += virtualKeyboardButton.width;
-                        if (enterButton.visible)
-                            margin += enterButton.width + Theme.spacingXXS;
-                        return margin;
-                    }
+                    anchors.left: placeholder.left
+                    anchors.leftMargin: -contentPadding
+                    anchors.right: placeholder.right
+                    anchors.rightMargin: -contentPadding
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    color: "transparent"
+                    border.width: 0
                     enabled: !root.pickerPhase || GreeterState.showPasswordInput
-                    opacity: 0
+                    opacity: root.pickerPhase && !GreeterState.showPasswordInput ? 0 : 1
                     focus: !root.pickerPhase || GreeterState.showPasswordInput
-                    echoMode: GreeterState.showPasswordInput ? (passwordBox.showPassword ? TextInput.Normal : TextInput.Password) : TextInput.Normal
-                    KeyNavigation.tab: virtualKeyboardButton.visible ? virtualKeyboardButton : (root.host?.sessionDropdownItem ?? inputField)
-                    KeyNavigation.backtab: root.host?.sessionDropdownItem ?? inputField
-
-                    Keys.onPressed: event => {
-                        if (event.key === Qt.Key_Tab && GreeterState.showPasswordInput && (!text || text.length === 0) && !(event.modifiers & (Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier)) && root.host.greeterExternalAuthAvailable && !root.host.externalAuthInProgress && !GreeterState.pendingPasswordResponse && Greetd.state === GreetdState.Inactive && !GreeterState.unlocking) {
-                            root.host.startAuthSession(false);
-                            event.accepted = true;
-                            return;
-                        }
-                        if (event.key !== Qt.Key_Escape || !GreeterState.showPasswordInput)
-                            return;
-                        if (text.length > 0) {
-                            root.clearInput();
-                            GreeterState.passwordBuffer = "";
-                            event.accepted = true;
-                            return;
-                        }
-                        if (root.pickerAvailable && !GreeterState.unlocking) {
-                            root.host.returnToUserPicker();
-                            event.accepted = true;
-                        }
+                    echoMode: masked ? TextInput.Password : TextInput.Normal
+                    textColor: {
+                        if (dotted)
+                            return root.failed ? Theme.error : root.accentColor;
+                        return root.contained ? Theme.surfaceText : root.plainColor;
                     }
+                    font.pixelSize: masked ? (root.contained ? Theme.fontSizeLarge : Theme.fontSizeXLarge) : Theme.fontSizeMedium
+                    font.letterSpacing: dotted ? Theme.spacingXS : 0
+                    keyNavigationTab: tabStartsExternalAuth ? null : (virtualKeyboardButton.visible ? virtualKeyboardButton : (root.host?.sessionDropdownItem ?? inputField))
+                    keyNavigationBacktab: root.host?.sessionDropdownItem ?? inputField
+                    keyForwardTargets: [inputKeyHandler]
 
-                    // Contract the on-screen Keyboard drives its target through.
-                    function insertText(value) {
-                        if (value)
-                            insert(cursorPosition, value);
-                    }
+                    Item {
+                        id: inputKeyHandler
 
-                    function backspace() {
-                        if (cursorPosition > 0)
-                            remove(cursorPosition - 1, cursorPosition);
+                        Keys.onPressed: event => {
+                            event.accepted = false;
+                            if (event.key === Qt.Key_Tab && inputField.tabStartsExternalAuth && !(event.modifiers & (Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier))) {
+                                root.host.startAuthSession(false);
+                                event.accepted = true;
+                                return;
+                            }
+                            if (event.key !== Qt.Key_Escape || !GreeterState.showPasswordInput)
+                                return;
+                            if (inputField.text.length > 0) {
+                                root.clearInput();
+                                GreeterState.passwordBuffer = "";
+                                event.accepted = true;
+                                return;
+                            }
+                            if (root.pickerAvailable && !GreeterState.unlocking) {
+                                root.host.returnToUserPicker();
+                                event.accepted = true;
+                            }
+                        }
                     }
 
                     onTextChanged: {
@@ -596,7 +593,7 @@ Item {
                     id: placeholder
 
                     anchors.left: lockIconContainer.right
-                    anchors.leftMargin: root.minimal ? 0 : Theme.spacingM
+                    anchors.leftMargin: root.minimal || root.dots ? 0 : Theme.spacingM
                     anchors.right: (GreeterState.showPasswordInput && revealButton.visible ? revealButton.left : (externalAuthButton.visible ? externalAuthButton.left : (virtualKeyboardButton.visible ? virtualKeyboardButton.left : (enterButton.visible ? enterButton.left : parent.right))))
                     anchors.rightMargin: Theme.spacingXXS
                     anchors.verticalCenter: parent.verticalCenter
@@ -642,117 +639,23 @@ Item {
                     }
                 }
 
-                Item {
-                    id: textViewport
-                    anchors.left: lockIconContainer.right
-                    anchors.leftMargin: root.minimal ? 0 : Theme.spacingM
-                    anchors.right: placeholder.right
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    clip: true
-                    visible: !root.dots || passwordBox.showPassword || !GreeterState.showPasswordInput
-
-                    Rectangle {
-                        x: echoText.x
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: echoText.contentWidth
-                        height: echoText.contentHeight
-                        color: root.accentColor
-                        visible: inputField.allSelected && echoText.opacity > 0
-                    }
-
-                    StyledText {
-                        id: echoText
-                        x: Math.min(0, textViewport.width - implicitWidth)
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: {
-                            if (!GreeterState.showPasswordInput)
-                                return GreeterState.usernameInput;
-                            return passwordBox.showPassword ? GreeterState.passwordBuffer : "•".repeat(GreeterState.passwordBuffer.length);
-                        }
-                        color: {
-                            if (inputField.allSelected)
-                                return Theme.onPrimary;
-                            return root.contained ? Theme.surfaceText : root.plainColor;
-                        }
-                        font.pixelSize: (GreeterState.showPasswordInput && !passwordBox.showPassword) ? (root.contained ? Theme.fontSizeLarge : Theme.fontSizeXLarge) : Theme.fontSizeMedium
-                        opacity: (GreeterState.showPasswordInput ? GreeterState.passwordBuffer.length > 0 : (root.pickerPhase ? false : GreeterState.usernameInput.length > 0)) ? 1 : 0
-                        wrapMode: Text.NoWrap
-                        elide: Text.ElideNone
-
-                        Behavior on opacity {
-                            NumberAnimation {
-                                duration: LockMetrics.effectsDuration
-                                easing.type: Easing.BezierSpline
-                                easing.bezierCurve: Theme.expressiveCurves.expressiveEffects
-                            }
-                        }
-                    }
-                }
-
-                Item {
-                    id: dotViewport
-                    anchors.left: parent.left
-                    anchors.leftMargin: Theme.spacingM - Theme.spacingXS
-                    anchors.right: placeholder.right
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    clip: true
-                    visible: root.dots && GreeterState.showPasswordInput && !passwordBox.showPassword
-
-                    Rectangle {
-                        x: dotRow.x - Theme.spacingXS
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: dotRow.width + Theme.spacingXS * 2
-                        height: dotRow.height + Theme.spacingXS * 2
-                        radius: Theme.fullRadius(width, height)
-                        color: root.accentColor
-                        visible: inputField.allSelected
-                    }
-
-                    Row {
-                        id: dotRow
-                        x: Math.min(Theme.spacingXS, dotViewport.width - width - Theme.spacingXS)
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: Theme.spacingS
-
-                        Repeater {
-                            model: Math.max(1, GreeterState.passwordBuffer.length)
-
-                            Rectangle {
-                                required property int index
-                                readonly property bool filled: index < GreeterState.passwordBuffer.length
-                                readonly property color tone: {
-                                    if (root.failed)
-                                        return Theme.error;
-                                    return inputField.allSelected ? Theme.onPrimary : root.accentColor;
-                                }
-
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: Theme.iconSizeSmall
-                                height: width
-                                radius: Theme.fullRadius(width, height)
-                                color: filled ? tone : "transparent"
-                                border.width: Theme.outlineWidthFocused
-                                border.color: filled ? tone : Theme.withAlpha(root.plainColor, Theme.pendingOpacity)
-                                scale: filled ? 1 : 0.8
-
-                                Behavior on scale {
-                                    NumberAnimation {
-                                        duration: LockMetrics.shakeDuration
-                                        easing.type: Easing.BezierSpline
-                                        easing.bezierCurve: Theme.expressiveCurves.expressiveFastSpatial
-                                    }
-                                }
-                            }
-                        }
-                    }
+                Rectangle {
+                    anchors.left: placeholder.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: Theme.iconSizeSmall
+                    height: width
+                    radius: Theme.fullRadius(width, height)
+                    color: "transparent"
+                    border.width: Theme.outlineWidthFocused
+                    border.color: Theme.withAlpha(root.plainColor, Theme.pendingOpacity)
+                    scale: 0.8
+                    visible: inputField.dotted && inputField.text.length === 0
                 }
 
                 LockActionButton {
                     id: revealButton
 
-                    activeFocusOnTab: false
+                    focusPolicy: Qt.NoFocus
                     Accessible.name: passwordBox.showPassword ? I18n.tr("Hide password") : I18n.tr("Show password")
 
                     anchors.right: externalAuthButton.visible ? externalAuthButton.left : (virtualKeyboardButton.visible ? virtualKeyboardButton.left : (enterButton.visible ? enterButton.left : parent.right))
@@ -820,7 +723,7 @@ Item {
                 LockActionButton {
                     id: enterButton
 
-                    activeFocusOnTab: false
+                    focusPolicy: Qt.NoFocus
                     Accessible.name: I18n.tr("Login")
 
                     anchors.right: parent.right
@@ -866,34 +769,38 @@ Item {
                 }
             }
         }
+    }
 
-        Item {
-            Layout.fillWidth: true
-            Layout.preferredHeight: (root.host?.showAccountSwitchLink ?? false) ? Theme.buttonHeightXS : 0
-            visible: root.host?.showAccountSwitchLink ?? false
+    Item {
+        id: accountSwitchLink
 
-            StyledText {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: I18n.tr("Back to user list", "greeter link to return from manual username entry to user picker")
-                color: Theme.primary
-                font.pixelSize: Theme.fontSizeSmall
-                font.underline: accountSwitchMouse.containsMouse
-            }
+        anchors.top: authColumn.bottom
+        anchors.topMargin: visible ? authColumn.spacing : 0
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: visible ? Theme.buttonHeightXS : 0
+        visible: root.host?.showAccountSwitchLink ?? false
 
-            MouseArea {
-                id: accountSwitchMouse
+        StyledText {
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: I18n.tr("Back to user list", "greeter link to return from manual username entry to user picker")
+            color: Theme.primary
+            font.pixelSize: Theme.fontSizeSmall
+            font.underline: accountSwitchMouse.containsMouse
+        }
 
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: root.host.returnToUserListFromManualEntry()
-            }
+        MouseArea {
+            id: accountSwitchMouse
+
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: root.host.returnToUserListFromManualEntry()
         }
     }
 
-    // Hangs below the box like the DMS lock widget so a centred box centres the field.
     StyledText {
-        anchors.top: authColumn.bottom
+        anchors.top: accountSwitchLink.bottom
         anchors.topMargin: Theme.spacingS
         anchors.left: parent.left
         anchors.right: parent.right
