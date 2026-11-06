@@ -1,39 +1,39 @@
 {
   "Authenticating...": {
-    "Authenticating...": "Authentifizierung..."
+    "Authenticating...": "Authentifizierung ..."
   },
   "Authentication error - try again": {
     "Authentication error - try again": "Authentifizierungsfehler - erneut versuchen"
   },
   "Authentication failed - attempt %1 of %2": {
-    "Authentication failed - attempt %1 of %2": ""
+    "Authentication failed - attempt %1 of %2": "Authentifizierung fehlgeschlagen – Versuch %1 von %2"
   },
   "Authentication failed - lockout can occur": {
-    "Authentication failed - lockout can occur": ""
+    "Authentication failed - lockout can occur": "Authentifizierung fehlgeschlagen – Sperrung kann auftreten"
   },
   "Authentication failed - try again": {
     "Authentication failed - try again": "Authentifizierung fehlgeschlagen - erneut versuchen"
   },
   "Auto-login": {
-    "Auto-login": ""
+    "Auto-login": "Automatische Anmeldung"
   },
   "Awaiting face authentication": {
-    "Awaiting face authentication": ""
+    "Awaiting face authentication": "Gesichtsauthentifizierung wird erwartet"
   },
   "Awaiting fingerprint authentication": {
-    "Awaiting fingerprint authentication": ""
+    "Awaiting fingerprint authentication": "Fingerabdruck-Authentifizierung wird erwartet"
   },
   "Awaiting fingerprint or security key authentication": {
-    "Awaiting fingerprint or security key authentication": ""
+    "Awaiting fingerprint or security key authentication": "Authentifizierung per Fingerabdruck oder Sicherheitsschlüssel wird erwartet"
   },
   "Awaiting security key authentication": {
-    "Awaiting security key authentication": ""
+    "Awaiting security key authentication": "Authentifizierung per Sicherheitsschlüssel wird erwartet"
   },
   "Back to user list": {
-    "Back to user list": ""
+    "Back to user list": "Zurück zur Benutzerliste"
   },
   "Face recognition": {
-    "Face recognition": ""
+    "Face recognition": "Gesichtserkennung"
   },
   "Fingerprint": {
     "Fingerprint": "Fingerabdruck"
@@ -45,16 +45,16 @@
     "Keyboard": "Tastatur"
   },
   "Logging in...": {
-    "Logging in...": ""
+    "Logging in...": "Anmeldung ..."
   },
   "Login": {
-    "Login": "Login"
+    "Login": "Anmeldung"
   },
   "Not listed?": {
-    "Not listed?": ""
+    "Not listed?": "Nicht gelistet?"
   },
   "Password...": {
-    "Password...": ""
+    "Password...": "Passwort ..."
   },
   "Power Options": {
     "Power Options": "Energieoptionen"
@@ -63,15 +63,15 @@
     "Security key": "Sicherheitsschlüssel"
   },
   "Select user...": {
-    "Select user...": ""
+    "Select user...": "Benutzer auswählen ..."
   },
   "Show password": {
-    "Show password": "Passwort anzeigen"
+    "Show password": "Passwort zeigen"
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": ""
+    "Too many failed attempts - account may be locked": "Zu viele fehlgeschlagene Versuche – Konto wird möglicherweise gesperrt"
   },
   "Username...": {
-    "Username...": ""
+    "Username...": "Benutzername ..."
   }
 }

@@ -6,34 +6,34 @@
     "Authentication error - try again": "שגיאת אימות - נסה/י שנית"
   },
   "Authentication failed - attempt %1 of %2": {
-    "Authentication failed - attempt %1 of %2": ""
+    "Authentication failed - attempt %1 of %2": "האימות נכשל - ניסיון %1 מתוך %2"
   },
   "Authentication failed - lockout can occur": {
-    "Authentication failed - lockout can occur": ""
+    "Authentication failed - lockout can occur": "האימות נכשל - החשבון עלול להינעל"
   },
   "Authentication failed - try again": {
     "Authentication failed - try again": "האימות נכשל - נסה/י שנית"
   },
   "Auto-login": {
-    "Auto-login": ""
+    "Auto-login": "התחברות אוטומטית"
   },
   "Awaiting face authentication": {
-    "Awaiting face authentication": ""
+    "Awaiting face authentication": "ממתין לאימות פנים"
   },
   "Awaiting fingerprint authentication": {
-    "Awaiting fingerprint authentication": ""
+    "Awaiting fingerprint authentication": "ממתין לאימות בטביעת אצבע"
   },
   "Awaiting fingerprint or security key authentication": {
-    "Awaiting fingerprint or security key authentication": ""
+    "Awaiting fingerprint or security key authentication": "ממתין לאימות בטביעת אצבע או במפתח אבטחה"
   },
   "Awaiting security key authentication": {
-    "Awaiting security key authentication": ""
+    "Awaiting security key authentication": "ממתין לאימות במפתח אבטחה"
   },
   "Back to user list": {
-    "Back to user list": ""
+    "Back to user list": "חזרה לרשימת המשתמשים"
   },
   "Face recognition": {
-    "Face recognition": ""
+    "Face recognition": "זיהוי פנים"
   },
   "Fingerprint": {
     "Fingerprint": "טביעת אצבע"
@@ -45,16 +45,16 @@
     "Keyboard": "מקלדת"
   },
   "Logging in...": {
-    "Logging in...": ""
+    "Logging in...": "מתחבר..."
   },
   "Login": {
     "Login": "התחברות"
   },
   "Not listed?": {
-    "Not listed?": ""
+    "Not listed?": "לא מופיע/ה ברשימה?"
   },
   "Password...": {
-    "Password...": ""
+    "Password...": "סיסמה..."
   },
   "Power Options": {
     "Power Options": "אפשרויות כיבוי והפעלה"
@@ -63,15 +63,15 @@
     "Security key": "מפתח אבטחה"
   },
   "Select user...": {
-    "Select user...": ""
+    "Select user...": "בחר/י משתמש/ת..."
   },
   "Show password": {
     "Show password": "הצג/י סיסמה"
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": ""
+    "Too many failed attempts - account may be locked": "יותר מדי ניסיונות נכשלו - ייתכן שהחשבון נעול"
   },
   "Username...": {
-    "Username...": ""
+    "Username...": "שם משתמש..."
   }
 }

@@ -36,13 +36,13 @@
     "Face recognition": ""
   },
   "Fingerprint": {
-    "Fingerprint": ""
+    "Fingerprint": "Parmak izi"
   },
   "Hide password": {
     "Hide password": ""
   },
   "Keyboard": {
-    "Keyboard": ""
+    "Keyboard": "Klavye"
   },
   "Logging in...": {
     "Logging in...": ""
@@ -57,7 +57,7 @@
     "Password...": ""
   },
   "Power Options": {
-    "Power Options": ""
+    "Power Options": "Güç Ayarları"
   },
   "Security key": {
     "Security key": ""
@@ -66,7 +66,7 @@
     "Select user...": ""
   },
   "Show password": {
-    "Show password": ""
+    "Show password": "Şifreyi göster"
   },
   "Too many failed attempts - account may be locked": {
     "Too many failed attempts - account may be locked": ""
