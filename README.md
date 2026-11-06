@@ -181,7 +181,9 @@ Remembers the last selected session and user. Disable via the
 
 **Fingerprint & Security Keys**
 Optional fingerprint (`pam_fprintd`) and U2F (`pam_u2f`) login, managed
-through `/etc/pam.d/greetd`. Existing custom PAM configuration is respected.
+through `/etc/pam.d/greetd`. When greetd ships only `/usr/lib/pam.d/greetd`,
+the greeter reads that file and copies it to `/etc` only while a factor is on.
+Existing custom PAM configuration is respected.
 
 **Localized**
 User-facing strings are translatable and managed through POEditor.

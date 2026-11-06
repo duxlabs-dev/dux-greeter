@@ -373,121 +373,130 @@ Item {
         }
     }
 
-    FileView {
-        id: greetdPamWatcher
-        path: "/etc/pam.d/greetd"
+    component PamServiceFile: FileView {
+        id: pamFile
+        required property string service
+        property bool vendor: false
+        signal missing
+
+        path: (vendor ? "/usr/lib/pam.d/" : "/etc/pam.d/") + service
         printErrors: false
+        onLoadFailed: error => {
+            if (!vendor && error === FileViewError.FileNotFound) {
+                Qt.callLater(() => pamFile.vendor = true);
+                return;
+            }
+            missing();
+        }
+    }
+
+    PamServiceFile {
+        id: greetdPamWatcher
+        service: "greetd"
         onLoaded: {
             root.greetdPamText = text();
             root.refreshPasswordAttemptPolicyHint();
             root.maybeAutoStartExternalAuth();
         }
-        onLoadFailed: {
+        onMissing: {
             root.greetdPamText = "";
             root.refreshPasswordAttemptPolicyHint();
         }
     }
 
-    FileView {
+    PamServiceFile {
         id: systemAuthPamWatcher
-        path: "/etc/pam.d/system-auth"
-        printErrors: false
+        service: "system-auth"
         onLoaded: {
             root.systemAuthPamText = text();
             root.refreshPasswordAttemptPolicyHint();
             root.maybeAutoStartExternalAuth();
         }
-        onLoadFailed: {
+        onMissing: {
             root.systemAuthPamText = "";
             root.refreshPasswordAttemptPolicyHint();
         }
     }
 
-    FileView {
+    PamServiceFile {
         id: commonAuthPamWatcher
-        path: "/etc/pam.d/common-auth"
-        printErrors: false
+        service: "common-auth"
         onLoaded: {
             root.commonAuthPamText = text();
             root.refreshPasswordAttemptPolicyHint();
             root.maybeAutoStartExternalAuth();
         }
-        onLoadFailed: {
+        onMissing: {
             root.commonAuthPamText = "";
             root.refreshPasswordAttemptPolicyHint();
         }
     }
 
-    FileView {
+    PamServiceFile {
         id: passwordAuthPamWatcher
-        path: "/etc/pam.d/password-auth"
-        printErrors: false
+        service: "password-auth"
         onLoaded: {
             root.passwordAuthPamText = text();
             root.refreshPasswordAttemptPolicyHint();
             root.maybeAutoStartExternalAuth();
         }
-        onLoadFailed: {
+        onMissing: {
             root.passwordAuthPamText = "";
             root.refreshPasswordAttemptPolicyHint();
         }
     }
 
-    FileView {
+    PamServiceFile {
         id: systemLoginPamWatcher
-        path: "/etc/pam.d/system-login"
-        printErrors: false
+        service: "system-login"
         onLoaded: {
             root.systemLoginPamText = text();
             root.refreshPasswordAttemptPolicyHint();
             root.maybeAutoStartExternalAuth();
         }
-        onLoadFailed: {
+        onMissing: {
             root.systemLoginPamText = "";
             root.refreshPasswordAttemptPolicyHint();
         }
     }
 
-    FileView {
+    PamServiceFile {
         id: systemLocalLoginPamWatcher
-        path: "/etc/pam.d/system-local-login"
-        printErrors: false
+        service: "system-local-login"
         onLoaded: {
             root.systemLocalLoginPamText = text();
             root.refreshPasswordAttemptPolicyHint();
             root.maybeAutoStartExternalAuth();
         }
-        onLoadFailed: {
+        onMissing: {
             root.systemLocalLoginPamText = "";
             root.refreshPasswordAttemptPolicyHint();
         }
     }
 
-    FileView {
+    PamServiceFile {
         id: commonAuthPcPamWatcher
-        path: "/etc/pam.d/common-auth-pc"
-        printErrors: false
+        service: "common-auth-pc"
         onLoaded: {
             root.commonAuthPcPamText = text();
             root.refreshPasswordAttemptPolicyHint();
             root.maybeAutoStartExternalAuth();
         }
-        onLoadFailed: {
+        onMissing: {
             root.commonAuthPcPamText = "";
             root.refreshPasswordAttemptPolicyHint();
         }
     }
 
-    FileView {
+    PamServiceFile {
         id: loginPamWatcher
-        path: "/etc/pam.d/login"
-        printErrors: false
+        service: "login"
         onLoaded: {
             root.loginPamText = text();
             root.refreshPasswordAttemptPolicyHint();
             root.maybeAutoStartExternalAuth();
         }
-        onLoadFailed: {
+        onMissing: {
             root.loginPamText = "";
             root.refreshPasswordAttemptPolicyHint();
         }
