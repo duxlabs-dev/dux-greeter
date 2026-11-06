@@ -15,7 +15,7 @@ Go module at `core/`, one binary `cmd/dms-greeter`. It is a cobra CLI and a gree
 - `cmd/dms-greeter/` - the bare `dms-greeter --command <compositor>` is what greetd runs. Subcommands: `install` (interactive greetd setup), `enable`, `sync` (with `--profile` and `--local`), `status`, `uninstall`, `version`, and the hidden `launch-session`. Also the systemd service and immutable-distro handling.
 - `internal/launcher/` - starts the compositor with a generated config, cursor, and logging, then runs quickshell inside it.
 - `internal/greeter/` - installer, session launcher, per-user cache sync and access checks (the `greeter` group and `/var/cache/dms-greeter/users/<user>/`).
-- `internal/pam/` - manages `/etc/pam.d/greetd` for fingerprint (`pam_fprintd`) and U2F (`pam_u2f`). Respects existing custom PAM config.
+- `internal/pam/` - manages `/etc/pam.d/greetd` for fingerprint (`pam_fprintd`) and U2F (`pam_u2f`), seeding it from `/usr/lib/pam.d/greetd` when greetd only ships the vendor file. Respects existing custom PAM config.
 - `internal/shellembed/` - `go:embed` of the quickshell tree, only with the `withshell` build tag. `make build` copies `quickshell/` into `internal/shellembed/dist` first (gitignored).
 - `internal/privesc/` - picks sudo, doas, or run0 for commands that touch system config.
 - `internal/config/`, `internal/distros/`, `internal/utils/`, `internal/qmlchecks/` - compositor config templates, distro detection, helpers, and go tests that assert invariants in the QML.

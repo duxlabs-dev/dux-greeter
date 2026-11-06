@@ -62,11 +62,11 @@ func (e *pamTestEnv) writeSettings(t *testing.T, content string) {
 
 func (e *pamTestEnv) deps(isNixOS bool) syncDeps {
 	return syncDeps{
-		pamDir:     e.pamDir,
-		greetdPath: e.greetdPath,
-		isNixOS:    func() bool { return isNixOS },
-		readFile:   os.ReadFile,
-		stat:       os.Stat,
+		pamDir:       e.pamDir,
+		vendorPamDir: filepath.Join(e.tmpDir, "vendor-pam.d"),
+		greetdPath:   e.greetdPath,
+		isNixOS:      func() bool { return isNixOS },
+		readFile:     os.ReadFile,
 		createTemp: func(_ string, pattern string) (*os.File, error) {
 			return os.CreateTemp(e.tmpDir, pattern)
 		},
@@ -229,7 +229,7 @@ func TestSyncAuthConfigWithDeps(t *testing.T) {
 			t.Fatalf("syncAuthConfigWithDeps returned error: %v", err)
 		}
 
-		if len(logs) == 0 || !strings.Contains(logs[len(logs)-1], "greetd not found") {
+		if len(logs) == 0 || !strings.Contains(logs[len(logs)-1], "Skipping greeter PAM sync") {
 			t.Fatalf("expected greetd skip log, got %v", logs)
 		}
 	})
@@ -314,4 +314,94 @@ func TestSyncAuthConfigWithDeps(t *testing.T) {
 			t.Fatalf("expected informational NixOS logs, got %v", logs)
 		}
 	})
+}
+
+func TestSyncSeedsFromVendorGreetd(t *testing.T) {
+	t.Parallel()
+
+	const vendor = "#%PAM-1.0\nauth include common-auth\n-auth optional pam_oo7.so\naccount required pam_sepermit.so\nsession required pam_namespace.so\n"
+	for _, test := range []struct{ name, settings, module string }{
+		{"disabled", `{}`, ""},
+		{"fingerprint", `{"greeterEnableFprint":true}`, "pam_fprintd.so"},
+		{"u2f", `{"greeterEnableU2f":true}`, "pam_u2f.so"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			env := newPamTestEnv(t)
+			deps := env.deps(false)
+			env.availableModules["pam_fprintd.so"] = true
+			env.availableModules["pam_u2f.so"] = true
+			env.writeSettings(t, test.settings)
+			vendorPath := filepath.Join(deps.vendorPamDir, "greetd")
+			writeTestFile(t, vendorPath, vendor)
+			if err := syncAuthConfigWithDeps(func(string) {}, "", SyncAuthOptions{HomeDir: env.homeDir}, deps); err != nil {
+				t.Fatal(err)
+			}
+			if test.module == "" {
+				if _, err := os.Stat(env.greetdPath); !os.IsNotExist(err) {
+					t.Fatalf("disabled sync created override: %v", err)
+				}
+				return
+			}
+			got := readFileString(t, env.greetdPath)
+			stripped, _ := StripManagedGreeterPamContent(got)
+			if stripped != vendor || !strings.Contains(got, test.module) {
+				t.Fatalf("vendor preservation or managed block failed: %s", got)
+			}
+			if err := syncAuthConfigWithDeps(func(string) {}, "", SyncAuthOptions{HomeDir: env.homeDir}, deps); err != nil {
+				t.Fatal(err)
+			}
+			if readFileString(t, env.greetdPath) != got {
+				t.Fatal("sync not idempotent")
+			}
+			if readFileString(t, vendorPath) != vendor {
+				t.Fatal("vendor changed")
+			}
+			env.writeSettings(t, `{}`)
+			if err := syncAuthConfigWithDeps(func(string) {}, "", SyncAuthOptions{HomeDir: env.homeDir}, deps); err != nil {
+				t.Fatal(err)
+			}
+			if readFileString(t, env.greetdPath) != vendor {
+				t.Fatal("disable did not restore copied vendor content")
+			}
+		})
+	}
+}
+
+func TestReadPamServicePrefersEtc(t *testing.T) {
+	t.Parallel()
+
+	env := newPamTestEnv(t)
+	deps := env.deps(false)
+	writeTestFile(t, filepath.Join(deps.vendorPamDir, "greetd"), "vendor")
+	env.writePamFile(t, "greetd", "etc")
+	got, err := readPamService("greetd", deps)
+	if err != nil || string(got) != "etc" {
+		t.Fatalf("got %q, %v", got, err)
+	}
+	deps.readFile = func(path string) ([]byte, error) {
+		if path == env.greetdPath {
+			return nil, os.ErrPermission
+		}
+		return []byte("vendor"), nil
+	}
+	if _, err := readPamService("greetd", deps); !os.IsPermission(err) {
+		t.Fatalf("unreadable etc silently fell back: %v", err)
+	}
+}
+
+func TestDetectIncludedPamModuleFallsBackToVendor(t *testing.T) {
+	t.Parallel()
+
+	env := newPamTestEnv(t)
+	deps := env.deps(false)
+	writeTestFile(t, filepath.Join(deps.vendorPamDir, "common-auth"), "auth sufficient pam_fprintd.so\n")
+	if got := detectIncludedPamModule("auth include common-auth\n", "pam_fprintd.so", deps); got != "common-auth" {
+		t.Fatalf("got %q", got)
+	}
+	env.writePamFile(t, "common-auth", "auth required pam_unix.so\n")
+	if got := detectIncludedPamModule("auth include common-auth\n", "pam_fprintd.so", deps); got != "" {
+		t.Fatalf("vendor leaked through etc override: %q", got)
+	}
 }

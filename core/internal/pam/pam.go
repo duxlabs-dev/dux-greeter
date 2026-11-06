@@ -27,6 +27,7 @@ const (
 	legacyGreeterPamU2FComment    = "# DMS greeter U2F"
 
 	GreetdPamPath = "/etc/pam.d/greetd"
+	vendorPamDir  = "/usr/lib/pam.d"
 )
 
 var includedPamAuthFiles = []string{
@@ -52,10 +53,10 @@ type SyncAuthOptions struct {
 
 type syncDeps struct {
 	pamDir                             string
+	vendorPamDir                       string
 	greetdPath                         string
 	isNixOS                            func() bool
 	readFile                           func(string) ([]byte, error)
-	stat                               func(string) (os.FileInfo, error)
 	createTemp                         func(string, string) (*os.File, error)
 	removeFile                         func(string) error
 	runSudoCmd                         func(string, string, ...string) error
@@ -65,13 +66,13 @@ type syncDeps struct {
 
 func defaultSyncDeps() syncDeps {
 	return syncDeps{
-		pamDir:     "/etc/pam.d",
-		greetdPath: GreetdPamPath,
-		isNixOS:    IsNixOS,
-		readFile:   os.ReadFile,
-		stat:       os.Stat,
-		createTemp: os.CreateTemp,
-		removeFile: os.Remove,
+		pamDir:       "/etc/pam.d",
+		vendorPamDir: vendorPamDir,
+		greetdPath:   GreetdPamPath,
+		isNixOS:      IsNixOS,
+		readFile:     os.ReadFile,
+		createTemp:   os.CreateTemp,
+		removeFile:   os.Remove,
 		runSudoCmd: func(password, command string, args ...string) error {
 			return privesc.Run(context.Background(), password, append([]string{command}, args...)...)
 		},
@@ -123,6 +124,18 @@ func RemoveManagedGreeterPamBlock(logFunc func(string), sudoPassword string) err
 	return removeManagedGreeterPamBlockWithDeps(logFunc, sudoPassword, defaultSyncDeps())
 }
 
+func ReadGreetdPam() ([]byte, error) {
+	return readPamService("greetd", defaultSyncDeps())
+}
+
+func readPamService(name string, deps syncDeps) ([]byte, error) {
+	data, err := deps.readFile(filepath.Join(deps.pamDir, name))
+	if !os.IsNotExist(err) {
+		return data, err
+	}
+	return deps.readFile(filepath.Join(deps.vendorPamDir, name))
+}
+
 func syncAuthConfigWithDeps(logFunc func(string), sudoPassword string, options SyncAuthOptions, deps syncDeps) error {
 	homeDir := strings.TrimSpace(options.HomeDir)
 	if homeDir == "" {
@@ -138,12 +151,12 @@ func syncAuthConfigWithDeps(logFunc func(string), sudoPassword string, options S
 		return err
 	}
 
-	if _, err := deps.stat(deps.greetdPath); err != nil {
+	if _, err := readPamService("greetd", deps); err != nil {
 		if os.IsNotExist(err) {
-			logFunc("ℹ /etc/pam.d/greetd not found. Skipping greeter PAM sync.")
+			logFunc("ℹ greetd PAM file not found. Skipping greeter PAM sync.")
 			return nil
 		}
-		return fmt.Errorf("failed to inspect %s: %w", deps.greetdPath, err)
+		return fmt.Errorf("failed to read %s: %w", deps.greetdPath, err)
 	}
 
 	if settings.GreeterPamExternallyManaged {
@@ -249,7 +262,7 @@ func detectIncludedPamModule(pamText, module string, deps syncDeps) string {
 		if !PamTextIncludesFile(pamText, includedFile) {
 			continue
 		}
-		data, err := deps.readFile(filepath.Join(deps.pamDir, includedFile))
+		data, err := readPamService(includedFile, deps)
 		if err != nil {
 			continue
 		}
@@ -376,7 +389,7 @@ func syncGreeterPamConfigWithDeps(logFunc func(string), sudoPassword string, set
 		return nil
 	}
 
-	pamData, err := deps.readFile(deps.greetdPath)
+	pamData, err := readPamService("greetd", deps)
 	if err != nil {
 		return fmt.Errorf("failed to read %s: %w", deps.greetdPath, err)
 	}
