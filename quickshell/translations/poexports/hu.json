@@ -6,34 +6,34 @@
     "Authentication error - try again": "Hitelesítési hiba – próbáld újra"
   },
   "Authentication failed - attempt %1 of %2": {
-    "Authentication failed - attempt %1 of %2": ""
+    "Authentication failed - attempt %1 of %2": "A hitelesítés sikertelen – %1. kísérlet / %2"
   },
   "Authentication failed - lockout can occur": {
-    "Authentication failed - lockout can occur": ""
+    "Authentication failed - lockout can occur": "A hitelesítés sikertelen – a fiók zárolható"
   },
   "Authentication failed - try again": {
     "Authentication failed - try again": "Sikertelen hitelesítés - próbáld újra"
   },
   "Auto-login": {
-    "Auto-login": ""
+    "Auto-login": "Automatikus bejelentkezés"
   },
   "Awaiting face authentication": {
-    "Awaiting face authentication": ""
+    "Awaiting face authentication": "Várakozás az arcalapú hitelesítésre"
   },
   "Awaiting fingerprint authentication": {
-    "Awaiting fingerprint authentication": ""
+    "Awaiting fingerprint authentication": "Várakozás az ujjlenyomat-alapú hitelesítésre"
   },
   "Awaiting fingerprint or security key authentication": {
-    "Awaiting fingerprint or security key authentication": ""
+    "Awaiting fingerprint or security key authentication": "Várakozás ujjlenyomat- vagy biztonsági kulcs alapú hitelesítésre"
   },
   "Awaiting security key authentication": {
-    "Awaiting security key authentication": ""
+    "Awaiting security key authentication": "Várakozás a biztonsági kulcs alapú hitelesítésre"
   },
   "Back to user list": {
-    "Back to user list": ""
+    "Back to user list": "Vissza a felhasználói listához"
   },
   "Face recognition": {
-    "Face recognition": ""
+    "Face recognition": "Arcfelismerés"
   },
   "Fingerprint": {
     "Fingerprint": "Ujjlenyomat"
@@ -45,16 +45,16 @@
     "Keyboard": "Billentyűzet"
   },
   "Logging in...": {
-    "Logging in...": ""
+    "Logging in...": "Bejelentkezés..."
   },
   "Login": {
     "Login": "Bejelentkezés"
   },
   "Not listed?": {
-    "Not listed?": ""
+    "Not listed?": "Nincs a listán?"
   },
   "Password...": {
-    "Password...": ""
+    "Password...": "Jelszó..."
   },
   "Power Options": {
     "Power Options": "Főkapcsoló lehetőségek"
@@ -63,15 +63,15 @@
     "Security key": "Biztonsági kulcs"
   },
   "Select user...": {
-    "Select user...": ""
+    "Select user...": "Válassz felhasználót..."
   },
   "Show password": {
     "Show password": "Jelszó megjelenítése"
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": ""
+    "Too many failed attempts - account may be locked": "Túl sok sikertelen kísérlet – a fiók zárolva lehet"
   },
   "Username...": {
-    "Username...": ""
+    "Username...": "Felhasználónév..."
   }
 }

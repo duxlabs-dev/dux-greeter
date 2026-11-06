@@ -6,34 +6,34 @@
     "Authentication error - try again": "Errore di autenticazione - riprova"
   },
   "Authentication failed - attempt %1 of %2": {
-    "Authentication failed - attempt %1 of %2": ""
+    "Authentication failed - attempt %1 of %2": "Autenticazione non riuscita - tentativo %1 di %2"
   },
   "Authentication failed - lockout can occur": {
-    "Authentication failed - lockout can occur": ""
+    "Authentication failed - lockout can occur": "Autenticazione non riuscita - possibile blocco"
   },
   "Authentication failed - try again": {
     "Authentication failed - try again": "Autenticazione non riuscita - riprova"
   },
   "Auto-login": {
-    "Auto-login": ""
+    "Auto-login": "Accesso automatico"
   },
   "Awaiting face authentication": {
-    "Awaiting face authentication": ""
+    "Awaiting face authentication": "In attesa dell’autenticazione con viso"
   },
   "Awaiting fingerprint authentication": {
-    "Awaiting fingerprint authentication": ""
+    "Awaiting fingerprint authentication": "In attesa dell’autenticazione con impronta digitale"
   },
   "Awaiting fingerprint or security key authentication": {
-    "Awaiting fingerprint or security key authentication": ""
+    "Awaiting fingerprint or security key authentication": "In attesa dell’autenticazione con impronta digitale o chiave di sicurezza"
   },
   "Awaiting security key authentication": {
-    "Awaiting security key authentication": ""
+    "Awaiting security key authentication": "In attesa dell’autenticazione con chiave di sicurezza"
   },
   "Back to user list": {
-    "Back to user list": ""
+    "Back to user list": "Torna all’elenco utenti"
   },
   "Face recognition": {
-    "Face recognition": ""
+    "Face recognition": "Riconoscimento facciale"
   },
   "Fingerprint": {
     "Fingerprint": "Impronta digitale"
@@ -45,16 +45,16 @@
     "Keyboard": "Tastiera"
   },
   "Logging in...": {
-    "Logging in...": ""
+    "Logging in...": "Accesso in corso..."
   },
   "Login": {
     "Login": "Accesso"
   },
   "Not listed?": {
-    "Not listed?": ""
+    "Not listed?": "Non in elenco?"
   },
   "Password...": {
-    "Password...": ""
+    "Password...": "Password..."
   },
   "Power Options": {
     "Power Options": "Opzioni di alimentazione"
@@ -63,15 +63,15 @@
     "Security key": "Chiave di sicurezza"
   },
   "Select user...": {
-    "Select user...": ""
+    "Select user...": "Seleziona utente..."
   },
   "Show password": {
     "Show password": "Mostra password"
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": ""
+    "Too many failed attempts - account may be locked": "Troppi tentativi falliti - l’account potrebbe essere bloccato"
   },
   "Username...": {
-    "Username...": ""
+    "Username...": "Nome utente..."
   }
 }

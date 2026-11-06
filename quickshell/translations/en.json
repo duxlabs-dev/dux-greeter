@@ -2,31 +2,31 @@
   {
     "term": "Authenticating...",
     "context": "Authenticating...",
-    "reference": "Modules/Greetd/GreeterAuthWidget.qml:600",
+    "reference": "Modules/Greetd/GreeterAuthWidget.qml:605",
     "comment": ""
   },
   {
     "term": "Authentication error - try again",
     "context": "Authentication error - try again",
-    "reference": "Modules/Greetd/GreeterContent.qml:327",
+    "reference": "Modules/Greetd/GreeterContent.qml:323",
     "comment": ""
   },
   {
     "term": "Authentication failed - attempt %1 of %2",
     "context": "Authentication failed - attempt %1 of %2",
-    "reference": "Modules/Greetd/GreeterContent.qml:335",
+    "reference": "Modules/Greetd/GreeterContent.qml:331",
     "comment": ""
   },
   {
     "term": "Authentication failed - lockout can occur",
     "context": "Authentication failed - lockout can occur",
-    "reference": "Modules/Greetd/GreeterContent.qml:337",
+    "reference": "Modules/Greetd/GreeterContent.qml:333",
     "comment": ""
   },
   {
     "term": "Authentication failed - try again",
     "context": "Authentication failed - try again",
-    "reference": "Modules/Greetd/GreeterContent.qml:339",
+    "reference": "Modules/Greetd/GreeterContent.qml:335",
     "comment": ""
   },
   {
@@ -38,67 +38,67 @@
   {
     "term": "Awaiting face authentication",
     "context": "Awaiting face authentication",
-    "reference": "Modules/Greetd/GreeterContent.qml:139",
+    "reference": "Modules/Greetd/GreeterContent.qml:135",
     "comment": ""
   },
   {
     "term": "Awaiting fingerprint authentication",
     "context": "Awaiting fingerprint authentication",
-    "reference": "Modules/Greetd/GreeterContent.qml:137",
+    "reference": "Modules/Greetd/GreeterContent.qml:133",
     "comment": ""
   },
   {
     "term": "Awaiting fingerprint or security key authentication",
     "context": "Awaiting fingerprint or security key authentication",
-    "reference": "Modules/Greetd/GreeterContent.qml:135",
+    "reference": "Modules/Greetd/GreeterContent.qml:131",
     "comment": ""
   },
   {
     "term": "Awaiting security key authentication",
     "context": "Awaiting security key authentication",
-    "reference": "Modules/Greetd/GreeterContent.qml:140",
+    "reference": "Modules/Greetd/GreeterContent.qml:136",
     "comment": ""
   },
   {
     "term": "Back to user list",
     "context": "Back to user list",
-    "reference": "Modules/Greetd/GreeterAuthWidget.qml:841",
+    "reference": "Modules/Greetd/GreeterAuthWidget.qml:786",
     "comment": "greeter link to return from manual username entry to user picker"
   },
   {
     "term": "Face recognition",
     "context": "Face recognition",
-    "reference": "Modules/Greetd/GreeterAuthWidget.qml:736",
+    "reference": "Modules/Greetd/GreeterAuthWidget.qml:675",
     "comment": ""
   },
   {
     "term": "Fingerprint",
     "context": "Fingerprint",
-    "reference": "Modules/Greetd/GreeterAuthWidget.qml:736",
+    "reference": "Modules/Greetd/GreeterAuthWidget.qml:675",
     "comment": ""
   },
   {
     "term": "Hide password",
     "context": "Hide password",
-    "reference": "Modules/Greetd/GreeterAuthWidget.qml:720",
+    "reference": "Modules/Greetd/GreeterAuthWidget.qml:659",
     "comment": ""
   },
   {
     "term": "Keyboard",
     "context": "Keyboard",
-    "reference": "Modules/Greetd/GreeterAuthWidget.qml:751",
+    "reference": "Modules/Greetd/GreeterAuthWidget.qml:690",
     "comment": ""
   },
   {
     "term": "Logging in...",
     "context": "Logging in...",
-    "reference": "Modules/Greetd/GreeterAuthWidget.qml:598",
+    "reference": "Modules/Greetd/GreeterAuthWidget.qml:603",
     "comment": ""
   },
   {
     "term": "Login",
     "context": "Login",
-    "reference": "Modules/Greetd/GreeterAuthWidget.qml:788",
+    "reference": "Modules/Greetd/GreeterAuthWidget.qml:727",
     "comment": ""
   },
   {
@@ -110,7 +110,7 @@
   {
     "term": "Password...",
     "context": "Password...",
-    "reference": "Modules/Greetd/GreeterAuthWidget.qml:604",
+    "reference": "Modules/Greetd/GreeterAuthWidget.qml:609",
     "comment": ""
   },
   {
@@ -122,7 +122,7 @@
   {
     "term": "Security key",
     "context": "Security key",
-    "reference": "Modules/Greetd/GreeterAuthWidget.qml:736",
+    "reference": "Modules/Greetd/GreeterAuthWidget.qml:675",
     "comment": ""
   },
   {
@@ -134,19 +134,19 @@
   {
     "term": "Show password",
     "context": "Show password",
-    "reference": "Modules/Greetd/GreeterAuthWidget.qml:720",
+    "reference": "Modules/Greetd/GreeterAuthWidget.qml:659",
     "comment": ""
   },
   {
     "term": "Too many failed attempts - account may be locked",
     "context": "Too many failed attempts - account may be locked",
-    "reference": "Modules/Greetd/GreeterContent.qml:329",
+    "reference": "Modules/Greetd/GreeterContent.qml:325",
     "comment": ""
   },
   {
     "term": "Username...",
     "context": "Username...",
-    "reference": "Modules/Greetd/GreeterAuthWidget.qml:608",
+    "reference": "Modules/Greetd/GreeterAuthWidget.qml:613",
     "comment": ""
   }
 ]

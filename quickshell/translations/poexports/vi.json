@@ -6,34 +6,34 @@
     "Authentication error - try again": "Lỗi xác thực - hãy thử lại"
   },
   "Authentication failed - attempt %1 of %2": {
-    "Authentication failed - attempt %1 of %2": ""
+    "Authentication failed - attempt %1 of %2": "Xác thực thất bại - lần thử %1/%2"
   },
   "Authentication failed - lockout can occur": {
-    "Authentication failed - lockout can occur": ""
+    "Authentication failed - lockout can occur": "Xác thực thất bại - có thể bị khóa"
   },
   "Authentication failed - try again": {
     "Authentication failed - try again": "Xác thực thất bại - thử lại"
   },
   "Auto-login": {
-    "Auto-login": ""
+    "Auto-login": "Tự động đăng nhập"
   },
   "Awaiting face authentication": {
-    "Awaiting face authentication": ""
+    "Awaiting face authentication": "Đang chờ xác thực khuôn mặt"
   },
   "Awaiting fingerprint authentication": {
-    "Awaiting fingerprint authentication": ""
+    "Awaiting fingerprint authentication": "Đang chờ xác thực vân tay"
   },
   "Awaiting fingerprint or security key authentication": {
-    "Awaiting fingerprint or security key authentication": ""
+    "Awaiting fingerprint or security key authentication": "Đang chờ xác thực vân tay hoặc khóa bảo mật"
   },
   "Awaiting security key authentication": {
-    "Awaiting security key authentication": ""
+    "Awaiting security key authentication": "Đang chờ xác thực bằng khóa bảo mật"
   },
   "Back to user list": {
-    "Back to user list": ""
+    "Back to user list": "Quay lại danh sách người dùng"
   },
   "Face recognition": {
-    "Face recognition": ""
+    "Face recognition": "Nhận diện khuôn mặt"
   },
   "Fingerprint": {
     "Fingerprint": "Dấu vân tay"
@@ -45,16 +45,16 @@
     "Keyboard": "Bàn phím"
   },
   "Logging in...": {
-    "Logging in...": ""
+    "Logging in...": "Đang đăng nhập..."
   },
   "Login": {
     "Login": "Đăng nhập"
   },
   "Not listed?": {
-    "Not listed?": ""
+    "Not listed?": "Không có trong danh sách?"
   },
   "Password...": {
-    "Password...": ""
+    "Password...": "Mật khẩu..."
   },
   "Power Options": {
     "Power Options": "Tùy chọn nguồn"
@@ -63,15 +63,15 @@
     "Security key": "Khóa bảo mật"
   },
   "Select user...": {
-    "Select user...": ""
+    "Select user...": "Chọn người dùng..."
   },
   "Show password": {
     "Show password": "Hiển thị mật khẩu"
   },
   "Too many failed attempts - account may be locked": {
-    "Too many failed attempts - account may be locked": ""
+    "Too many failed attempts - account may be locked": "Quá nhiều lần thử thất bại - tài khoản có thể bị khóa"
   },
   "Username...": {
-    "Username...": ""
+    "Username...": "Tên người dùng..."
   }
 }
