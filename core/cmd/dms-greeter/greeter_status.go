@@ -420,10 +420,9 @@ func checkGreeterStatus() error {
 		printGreeterStatusSummary(allGood, inGreeterGroup, greeterGroup)
 		return nil
 	}
-	greetdPamPath := "/etc/pam.d/greetd"
-	pamData, err := os.ReadFile(greetdPamPath)
+	pamData, err := sharedpam.ReadGreetdPam()
 	if err != nil {
-		fmt.Printf("  ✗ Failed to read %s: %v\n", greetdPamPath, err)
+		fmt.Printf("  ✗ Failed to read greetd PAM: %v\n", err)
 		allGood = false
 	} else {
 		managed, managedFprint, managedU2f, legacyManaged := sharedpam.ParseManagedGreeterPamAuth(string(pamData))
