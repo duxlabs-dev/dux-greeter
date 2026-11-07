@@ -7,10 +7,20 @@
       url = "github:duxlabs-dev/dux-qml-common";
       flake = false;
     };
+    dux-qt-base = {
+      url = "github:duxlabs-dev/dux-qt-base";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { self, nixpkgs, dank-qml-common, ... }:
+    {
+      self,
+      nixpkgs,
+      dank-qml-common,
+      dux-qt-base,
+      ...
+    }:
     let
       goModVersion =
         let
@@ -38,6 +48,17 @@
           system: fn system nixpkgs.legacyPackages.${system}
         );
 
+      duxQtBaseFor =
+        pkgs: pkgs.dux-qt-base or dux-qt-base.packages.${pkgs.stdenv.hostPlatform.system}.dux-qt-base;
+
+      mkQmlImportPath =
+        pkgs: qmlPkgs:
+        pkgs.lib.concatStringsSep ":" (map (o: "${o}/${pkgs.qt6.qtbase.qtQmlPrefix}") qmlPkgs);
+
+      mkQtPluginPath =
+        pkgs: qtPkgs:
+        pkgs.lib.concatStringsSep ":" (map (o: "${o}/${pkgs.qt6.qtbase.qtPluginPrefix}") qtPkgs);
+
       mkModuleWithGreeterPkgs =
         modulePath:
         args@{ pkgs, ... }:
@@ -49,20 +70,37 @@
 
       mkDmsGreeter =
         pkgs:
-        (
+        pkgs.lib.makeOverridable (
+          {
+            duxQtBase ? duxQtBaseFor pkgs,
+          }:
           let
             version = "2.1.0";
+            qtPackages = with pkgs.kdePackages; [
+              qtdeclarative
+              qtsvg
+            ];
           in
           (pkgs.buildGoModule.override { go = goForPkgs pkgs; }) {
             inherit version;
             pname = "dms-greeter";
             src = ./.;
             modRoot = "core";
-            vendorHash = "sha256-gtzhwzCoIwIeRFO4k6EKSThkLrzG0LECkQVuMVQNn88=";
+            vendorHash = "sha256-FKz9G6DSAGg8Q8ictBsF1XaW5hgdr1MzByPkpP6t6XQ=";
 
             subPackages = [ "cmd/dms-greeter" ];
 
-            tags = [ "withshell" ];
+            tags = [
+              "withshell"
+              "withqtbase"
+            ];
+
+            # embed the runtime library the same way make qtbase does; buildGoModule copies preBuild
+            # into the vendor derivation, which would make the vendorHash build depend on dux-qt-base
+            preConfigure = ''
+              install -Dm644 ${duxQtBase}/lib/libdux-qt-base.so.0 core/internal/qtbaseembed/lib/libdux-qt-base.so.0
+              sha256sum core/internal/qtbaseembed/lib/libdux-qt-base.so.0 | cut -c1-16 > core/internal/qtbaseembed/lib/.dankrev
+            '';
 
             # Mirror `make -C core sync-shell`: bake the quickshell UI into
             # the binary, minus dev-only files. The flake src excludes
@@ -91,6 +129,7 @@
 
             nativeBuildInputs = with pkgs; [
               installShellFiles
+              makeWrapper
             ];
 
             postInstall = ''
@@ -98,6 +137,10 @@
                 --bash <($out/bin/dms-greeter completion bash) \
                 --fish <($out/bin/dms-greeter completion fish) \
                 --zsh <($out/bin/dms-greeter completion zsh)
+
+              wrapProgram $out/bin/dms-greeter \
+                --prefix NIXPKGS_QT6_QML_IMPORT_PATH : "${mkQmlImportPath pkgs qtPackages}" \
+                --prefix QT_PLUGIN_PATH : "${mkQtPluginPath pkgs qtPackages}"
             '';
 
             meta = {
@@ -108,10 +151,11 @@
               platforms = pkgs.lib.platforms.linux;
             };
           }
-        );
+        ) { };
 
       buildGreeterPkgs = pkgs: {
         dms-greeter = mkDmsGreeter pkgs;
+        dux-qt-base = duxQtBaseFor pkgs;
       };
     in
     {

@@ -9,6 +9,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/duxlabs-dev/dux-go/qtbase"
 )
 
 const DefaultCacheDir = "/var/cache/dms-greeter"
@@ -21,6 +23,8 @@ type Options struct {
 	RememberLastSession string
 	RememberLastUser    string
 	Debug               bool
+	QSChild             bool
+	QtBase              qtbase.Locator
 }
 
 func NormalizeBool(flagName, value string) (string, error) {
@@ -87,11 +91,10 @@ func Run(opts Options) error {
 		return err
 	}
 
-	qsBin, err := resolveQuickshellBinary()
+	qsCmd, err := uiCommand(opts)
 	if err != nil {
 		return err
 	}
-	qsCmd := fmt.Sprintf("%s -p %s", qsBin, opts.ShellDir)
 
 	plan, err := buildPlan(opts.Compositor, opts.CompositorConfig, qsCmd)
 	if err != nil {
@@ -164,6 +167,25 @@ func exportRememberFlag(value, rememberVar, saveVar string) error {
 		saveValue = "true"
 	}
 	return os.Setenv(saveVar, saveValue)
+}
+
+// Checked before the compositor starts: without a runtime it would come up with no UI.
+func uiCommand(opts Options) (string, error) {
+	if opts.QSChild {
+		qsBin, err := resolveQuickshellBinary()
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("%s -p %s", qsBin, opts.ShellDir), nil
+	}
+	if _, err := qtbase.Locate(opts.QtBase); err != nil {
+		return "", fmt.Errorf("%w\nto run the UI on upstream quickshell instead, pass --qs-child", err)
+	}
+	exe, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s %s -p %s", exe, qtbase.Subcommand, opts.ShellDir), nil
 }
 
 func resolveQuickshellBinary() (string, error) {

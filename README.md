@@ -154,7 +154,7 @@ uses `programs.aqueous.package` when available, falling back to `pkgs.aqueous`.
 ### Requirements
 
 - [greetd](https://github.com/kennylevinsen/greetd)
-- [Quickshell](https://quickshell.org) (`qs`)
+- dux-qt-base, the Dux build of [Quickshell](https://quickshell.org) that runs the UI (the `dux-qt-base` package, `libdux-qt-base0` on Debian and Ubuntu). The greeter refuses to start without it. `make QTBASE=1` builds it from the `dux-qt-base` submodule and embeds it in `dms-greeter` instead. `--qs-child` (or `DMS_GREETER_QS_CHILD=1`) runs the UI on upstream `qs`, which is unsupported
 - One of the supported compositors
 - Go 1.26+ (build only - the binary is pure Go, no CGO)
 
@@ -212,6 +212,7 @@ dms-greeter --command aqueous
 dms-greeter --command aqueous -C /etc/greetd/aqueous.toml
 dms-greeter --command niri -C /path/to/custom-niri.kdl
 dms-greeter --command niri --remember-last-user false --remember-last-session false
+dms-greeter --command niri --qs-child   # unsupported: run the UI on upstream qs instead of dux-qt-base
 ```
 
 ## Configuration

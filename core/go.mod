@@ -3,7 +3,7 @@ module github.com/duxlabs-dev/dux-greeter/core
 go 1.27
 
 require (
-	github.com/duxlabs-dev/dux-go v1.6.3-0.20261020163124-e2ca52bdf500
+	github.com/duxlabs-dev/dux-go v1.6.3-0.20261107145002-3c9896096bc7
 	github.com/sblinch/kdl-go v0.0.0-20260121213736-8b7053306ca6
 	github.com/spf13/cobra v1.10.2
 )
@@ -18,6 +18,7 @@ require (
 	github.com/charmbracelet/x/term v0.2.2 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
+	github.com/ebitengine/purego v0.11.3 // indirect
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect

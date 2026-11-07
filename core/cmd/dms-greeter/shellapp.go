@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/duxlabs-dev/dux-go/shellapp"
+	"github.com/duxlabs-dev/dux-greeter/core/internal/qtbaseembed"
 	"github.com/duxlabs-dev/dux-greeter/core/internal/shellembed"
 )
 
@@ -13,6 +14,7 @@ var shellApp = shellapp.New(shellapp.Config{
 	QSAppID:   "dev.duxlabs.greeter",
 	Version:   Version,
 	Embedded:  embeddedShell{},
+	QtBase:    qtbaseembed.Extract,
 	Boot:      bootPreviewBackend,
 	ExtraEnv:  previewEnv,
 })

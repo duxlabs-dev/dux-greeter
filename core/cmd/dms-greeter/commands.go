@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/duxlabs-dev/dux-greeter/core/internal/launcher"
+	"github.com/duxlabs-dev/dux-greeter/core/internal/qtbaseembed"
 	"github.com/duxlabs-dev/dux-greeter/core/internal/shellembed"
 	"github.com/spf13/cobra"
 )
@@ -20,6 +21,7 @@ var launchFlags struct {
 	noSaveSession       bool
 	noSaveUsername      bool
 	debug               bool
+	qsChild             bool
 }
 
 var rootCmd = &cobra.Command{
@@ -71,6 +73,8 @@ func runGreeter(cmd *cobra.Command, _ []string) error {
 		RememberLastSession: rememberSession,
 		RememberLastUser:    rememberUser,
 		Debug:               launchFlags.debug,
+		QSChild:             launchFlags.qsChild || os.Getenv("DMS_GREETER_QS_CHILD") != "",
+		QtBase:              qtbaseembed.Extract,
 	})
 }
 
@@ -131,6 +135,7 @@ func init() {
 	flags.BoolVar(&launchFlags.noSaveSession, "no-save-session", false, "Alias for --remember-last-session false")
 	flags.BoolVar(&launchFlags.noSaveUsername, "no-save-username", false, "Alias for --remember-last-user false")
 	flags.BoolVar(&launchFlags.debug, "debug", false, "Leave compositor output on the greeter's own stdout/stderr instead of journald")
+	flags.BoolVar(&launchFlags.qsChild, "qs-child", false, "Run the UI on upstream quickshell (qs on PATH) instead of dux-qt-base (env: DMS_GREETER_QS_CHILD)")
 
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(shellApp.Commands()...)
