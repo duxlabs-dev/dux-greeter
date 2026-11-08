@@ -4,11 +4,13 @@
 package launcher
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/duxlabs-dev/dux-go/qtbase"
 )
@@ -180,6 +182,11 @@ func uiCommand(opts Options) (string, error) {
 	}
 	if _, err := qtbase.Locate(opts.QtBase); err != nil {
 		return "", fmt.Errorf("%w\nto run the UI on upstream quickshell instead, pass --qs-child", err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if output, err := qtbase.Command(ctx, "--version").CombinedOutput(); err != nil {
+		return "", fmt.Errorf("runtime unavailable: %w: %s", err, strings.TrimSpace(string(output)))
 	}
 	exe, err := os.Executable()
 	if err != nil {

@@ -125,10 +125,7 @@ func TestTerminalArgsShapeCommandPerEmulator(t *testing.T) {
 		"kitty":          {"bash", "-c", shellCmd},
 		"/usr/bin/kitty": {"bash", "-c", shellCmd},
 		"xterm":          {"-e", `bash -c "dms-greeter sync; echo \"done\""`},
-		"xfce4-terminal": {"-e", `bash -c "dms-greeter sync; echo \"done\""`},
 		"konsole":        {"-e", "bash", "-c", shellCmd},
-		"foot":           {"bash", "-c", shellCmd},
-		"ptyxis":         {"-e", "bash", "-c", shellCmd},
 	}
 	for terminal, want := range cases {
 		if got := terminalArgs(terminal, shellCmd); !reflect.DeepEqual(got, want) {

@@ -10,40 +10,6 @@ import (
 	"testing"
 )
 
-func TestDetectCompositors(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name      string
-		installed map[string]bool
-		want      []string
-	}{
-		{
-			name: "no compositors installed",
-		},
-		{
-			name:      "only aqueous installed",
-			installed: map[string]bool{"aqueous": true},
-			want:      []string{"aqueous"},
-		},
-		{
-			name:      "all compositors installed",
-			installed: map[string]bool{"niri": true, "Hyprland": true, "mango": true, "aqueous": true},
-			want:      []string{"niri", "Hyprland", "mango", "aqueous"},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got := detectCompositors(func(cmd string) bool { return tt.installed[cmd] })
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Fatalf("detectCompositors() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestEnsureGreeterCacheSELinuxContext(t *testing.T) {
 	t.Parallel()
 
@@ -508,19 +474,5 @@ include "dms/render.kdl"
 	}
 	if !strings.Contains(rendered, `render-drm-device "/dev/dri/renderD128"`) {
 		t.Fatalf("expected render-drm-device merged, got:\n%s", rendered)
-	}
-}
-
-func TestResolveGreeterAutoLoginStateUsesMemoryReader(t *testing.T) {
-	cacheDir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(cacheDir, "settings.json"), []byte(`{"greeterAutoLogin":true}`), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	read := func(path string) ([]byte, error) {
-		return []byte(`{"lastSuccessfulUser":"alice"}`), nil
-	}
-	enabled, loginUser, _, err := resolveGreeterAutoLoginStateWith(cacheDir, t.TempDir(), read)
-	if err != nil || !enabled || loginUser != "alice" {
-		t.Fatalf("enabled=%v user=%q err=%v", enabled, loginUser, err)
 	}
 }

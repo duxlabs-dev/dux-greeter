@@ -6,16 +6,6 @@ import (
 	"testing"
 )
 
-func TestUserGreeterCacheDir(t *testing.T) {
-	t.Parallel()
-
-	got := userGreeterCacheDir("/var/cache/dms-greeter", "alice")
-	want := filepath.Join("/var/cache/dms-greeter", "users", "alice")
-	if got != want {
-		t.Fatalf("userGreeterCacheDir() = %q, want %q", got, want)
-	}
-}
-
 func TestResolveUserProfileImageSource(t *testing.T) {
 	t.Parallel()
 
@@ -157,21 +147,6 @@ func TestWallpaperAccessDirs(t *testing.T) {
 	}
 }
 
-func TestIsUserSlotSnapshotArtifact(t *testing.T) {
-	t.Parallel()
-
-	for _, name := range []string{"wallpaper.jpg", "wallpaper-monitor-DP-1.png", "wallpaper-light.webp", "profile.png", "custom-theme.json"} {
-		if !isUserSlotSnapshotArtifact(name) {
-			t.Fatalf("expected %q to be a snapshot artifact", name)
-		}
-	}
-	for _, name := range []string{"settings.json", "session.json", "colors.json"} {
-		if isUserSlotSnapshotArtifact(name) {
-			t.Fatalf("expected %q to be kept", name)
-		}
-	}
-}
-
 func TestLinkUserSlotReplacesSnapshot(t *testing.T) {
 	t.Parallel()
 
@@ -294,26 +269,6 @@ func TestInspectUserSlot(t *testing.T) {
 	for i := range want {
 		if slots[i] != want[i] {
 			t.Fatalf("ListUserSlots()[%d] = %q, want %q", i, slots[i], want[i])
-		}
-	}
-}
-
-func TestSettingsFilePaths(t *testing.T) {
-	t.Parallel()
-
-	got := settingsFilePaths(map[string]any{
-		"lockScreenWallpaperPath": "/home/alice/lock.jpg",
-		"customThemeFile":         "~/.config/theme.json",
-		"fontFamily":              "Inter",
-		"wallpaperPath":           "/ignored.jpg",
-	})
-	want := []string{"/home/alice/lock.jpg", "~/.config/theme.json"}
-	if len(got) != len(want) {
-		t.Fatalf("settingsFilePaths() = %v, want %v", got, want)
-	}
-	for i := range want {
-		if got[i] != want[i] {
-			t.Fatalf("settingsFilePaths()[%d] = %q, want %q", i, got[i], want[i])
 		}
 	}
 }

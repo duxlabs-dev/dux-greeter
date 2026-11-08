@@ -15,8 +15,8 @@ var (
 )
 
 func main() {
-	qtbase.MaybeRunAndExit(qtbaseembed.Extract)
 	log.SetEnvPrefix("DMS_GREETER")
+	qtbase.MaybeRunAndExit(qtbaseembed.Extract)
 	if err := rootCmd.Execute(); err != nil {
 		log.Errorf("%v", err)
 		os.Exit(1)

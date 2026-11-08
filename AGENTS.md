@@ -19,7 +19,7 @@ Go module at `core/`, one binary `cmd/dms-greeter`. It is a cobra CLI and a gree
 - `internal/pam/` - manages `/etc/pam.d/greetd` for fingerprint (`pam_fprintd`) and U2F (`pam_u2f`), seeding it from `/usr/lib/pam.d/greetd` when greetd only ships the vendor file. Respects existing custom PAM config.
 - `internal/shellembed/` - `go:embed` of the quickshell tree, only with the `withshell` build tag. `make build` copies `quickshell/` into `internal/shellembed/dist` first (gitignored).
 - `internal/privesc/` - picks sudo, doas, or run0 for commands that touch system config.
-- `internal/config/`, `internal/distros/`, `internal/utils/`, `internal/qmlchecks/` - compositor config templates, distro detection, helpers, and go tests that assert invariants in the QML.
+- `internal/config/`, `internal/distros/`, `internal/utils/` - compositor config templates, distro detection, helpers.
 
 Shared Go code comes from the `dankgo` module at the version pinned in `core/go.mod`. There is no unix socket server and no daemon; the greeter talks to greetd through Quickshell's own `Quickshell.Services.Greetd`.
 

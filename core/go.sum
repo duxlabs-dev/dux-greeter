@@ -19,8 +19,8 @@ github.com/clipperhouse/uax29/v2 v2.7.0/go.mod h1:EFJ2TJMRUaplDxHKj1qAEhCtQPW2tJ
 github.com/cpuguy83/go-md2man/v2 v2.0.6/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6NIQQ7OS05n1F4g=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/duxlabs-dev/dux-go v1.6.3-0.20261107145002-3c9896096bc7 h1:1J/y6cFkHJcOqRoA6ExW8fV8CXVxvgiAQxNeBB5oWyk=
-github.com/duxlabs-dev/dux-go v1.6.3-0.20261107145002-3c9896096bc7/go.mod h1:b67p+bMQvy+LqsAXCAOERXutm4SbQuTeqKsGeEnqR8w=
+github.com/duxlabs-dev/dux-go v1.6.3-0.20261108174937-720dca1f283c h1:Bsp9jXmTzGfibfHomGKKg3SMnPuXt7Uou1oGUh7GnV0=
+github.com/duxlabs-dev/dux-go v1.6.3-0.20261108174937-720dca1f283c/go.mod h1:b67p+bMQvy+LqsAXCAOERXutm4SbQuTeqKsGeEnqR8w=
 github.com/ebitengine/purego v0.11.3 h1:OB+JLpdm7ioymhyA+6s5kbb/uOuYycAgL8NNTFc5MLg=
 github.com/ebitengine/purego v0.11.3/go.mod h1:DCHPP08djqhNSoTfImcnHYQRZmd0qhakvrozqaEYhGQ=
 github.com/go-logfmt/logfmt v0.6.1 h1:4hvbpePJKnIzH1B+8OR/JPbTx37NktoI9LE2QZBBkvE=
