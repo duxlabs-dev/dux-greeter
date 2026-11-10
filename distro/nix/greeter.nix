@@ -28,7 +28,6 @@ let
   greeterCommand = pkgs.writeShellScriptBin "dms-greeter-session" ''
     export PATH=$PATH:${
       lib.makeBinPath [
-        cfg.quickshell.package
         compositorPackage
         pkgs.glib # provides gdbus, used by the fprintd hardware probe and portal reads
       ]
@@ -86,13 +85,25 @@ let
   jq = lib.getExe pkgs.jq;
 in
 {
+  imports = [
+    (lib.mkRemovedOptionModule [
+      "programs"
+      "dms-greeter"
+      "quickshell"
+      "package"
+    ] "The Quickshell runtime is embedded in dms-greeter as dux-qt-base; set programs.dms-greeter.duxQtBase.package instead.")
+  ];
+
   options.programs.dms-greeter = {
     enable = lib.mkEnableOption "DMS Greeter";
     package = lib.mkOption {
       type = types.package;
-      default = greeterPkgs.dms-greeter;
-      defaultText = lib.literalExpression "built from source";
-      description = "The dms-greeter package to use.";
+      default = greeterPkgs.dms-greeter.override { duxQtBase = cfg.duxQtBase.package; };
+      defaultText = lib.literalExpression "greeterPkgs.dms-greeter.override { duxQtBase = config.programs.dms-greeter.duxQtBase.package; }";
+      description = "The dms-greeter package to use (defaults to be built from source against duxQtBase.package).";
+    };
+    duxQtBase.package = lib.mkPackageOption greeterPkgs "dux-qt-base" {
+      extraDescription = "The Quickshell runtime library embedded in the dms-greeter package (defaults to the pinned dux-qt-base flake input, built against this system's nixpkgs).";
     };
     compositor.name = lib.mkOption {
       type = types.enum [
@@ -133,14 +144,6 @@ in
         User home directory to copy Dux Shell configurations from.
         If DMS config files are in non-standard locations use configFiles instead.
       '';
-    };
-    quickshell = {
-      package = lib.mkOption {
-        type = types.package;
-        default = pkgs.quickshell;
-        defaultText = lib.literalExpression "pkgs.quickshell";
-        description = "The quickshell package to use (at least 0.3.0 recommended).";
-      };
     };
     logs.save = lib.mkEnableOption "saving dms-greeter logs to a file";
     logs.path = lib.mkOption {

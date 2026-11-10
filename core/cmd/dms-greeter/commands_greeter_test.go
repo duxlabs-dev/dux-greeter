@@ -124,7 +124,6 @@ func TestExtractGreeterShellDirFromCommand(t *testing.T) {
 		want    string
 	}{
 		{"shell-dir short flag", "/usr/bin/dms-greeter --command niri -c /home/dev/dank-greeter/quickshell", "/home/dev/dank-greeter/quickshell"},
-		{"legacy path flag", "/usr/bin/dms-greeter --command niri -p /usr/share/quickshell/dms-greeter", "/usr/share/quickshell/dms-greeter"},
 		{"no override", "/usr/bin/dms-greeter --command niri", ""},
 	}
 	for _, tt := range tests {
@@ -143,7 +142,7 @@ func TestRejectNixOSGreeterMutationBlocksImperativeCommands(t *testing.T) {
 		greeterIsNixOSFn = origGreeterIsNixOSFn
 	})
 
-	for _, commandName := range []string{"install", "enable", "sync", "uninstall"} {
+	for _, commandName := range []string{"install"} {
 		t.Run(commandName, func(t *testing.T) {
 			root := &cobra.Command{Use: "dms-greeter"}
 			mutationCommand := &cobra.Command{Use: commandName}

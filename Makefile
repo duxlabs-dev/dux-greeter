@@ -13,7 +13,7 @@ DATA_DIR=$(PREFIX)/share
 SHELL_DIR=quickshell
 ASSETS_DIR=assets
 
-.PHONY: all build dev run clean test fmt vet update-common i18n-extract i18n-local i18n-test i18n-push i18n-sync i18n-check install install-bin uninstall uninstall-bin help
+.PHONY: all build dev run clean test fmt vet update-common update-qtbase i18n-extract i18n-local i18n-test i18n-push i18n-sync i18n-check install install-bin uninstall uninstall-bin help
 
 all: build
 
@@ -43,6 +43,10 @@ vet:
 update-common:
 	git submodule update --remote --merge dux-qml-common
 	nix --extra-experimental-features 'nix-command flakes' flake update dank-qml-common
+
+update-qtbase:
+	git submodule update --remote --merge dux-qt-base
+	nix --extra-experimental-features 'nix-command flakes' flake update dux-qt-base
 
 i18n-extract:
 	@python3 $(SHELL_DIR)/translations/extract_translations.py
@@ -85,6 +89,7 @@ help:
 	@echo "  run                - Build and preview the greeter against the in-repo quickshell config"
 	@echo "  clean / test / fmt / vet"
 	@echo "  update-common      - Bump the dux-qml-common submodule + flake input"
+	@echo "  update-qtbase      - Bump the dux-qt-base submodule + flake input"
 	@echo "  i18n-extract       - Regenerate translations/en.json from I18n.tr() calls"
 	@echo "  i18n-local         - Re-extract and show added/removed terms (no POEditor)"
 	@echo "  i18n-test          - Extract and validate, no POEditor calls"
