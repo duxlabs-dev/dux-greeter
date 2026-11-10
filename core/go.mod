@@ -1,9 +1,9 @@
 module github.com/duxlabs-dev/dux-greeter/core
 
-go 1.27
+go 1.27.3
 
 require (
-	github.com/duxlabs-dev/dux-go v1.6.3-0.20261108174937-720dca1f283c
+	github.com/duxlabs-dev/dux-go v1.6.3-0.20261110155217-26b745ee0afd
 	github.com/sblinch/kdl-go v0.0.0-20260121213736-8b7053306ca6
 	github.com/spf13/cobra v1.10.2
 )

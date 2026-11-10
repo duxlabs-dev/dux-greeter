@@ -48,8 +48,7 @@
           system: fn system nixpkgs.legacyPackages.${system}
         );
 
-      duxQtBaseFor =
-        pkgs: pkgs.dux-qt-base or dux-qt-base.packages.${pkgs.stdenv.hostPlatform.system}.dux-qt-base;
+      duxQtBaseFor = pkgs: (dux-qt-base.overlays.default pkgs pkgs).dux-qt-base;
 
       mkQmlImportPath =
         pkgs: qmlPkgs:
@@ -86,7 +85,7 @@
             pname = "dms-greeter";
             src = ./.;
             modRoot = "core";
-            vendorHash = "sha256-JwUKX5a/w3P4RT3OuJNxwUD31E/eJ4k6sH71EW61Vf8=";
+            vendorHash = "sha256-EfLo+yHgCNDEYeUzBqRoCG0aXZyDxKap7+4TEcw+JmM=";
 
             subPackages = [ "cmd/dms-greeter" ];
 

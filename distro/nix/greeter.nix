@@ -103,7 +103,7 @@ in
       description = "The dms-greeter package to use (defaults to be built from source against duxQtBase.package).";
     };
     duxQtBase.package = lib.mkPackageOption greeterPkgs "dux-qt-base" {
-      extraDescription = "The Quickshell runtime library embedded in the dms-greeter package (pkgs.dux-qt-base when the overlay provides it, else the dux-qt-base flake input).";
+      extraDescription = "The Quickshell runtime library embedded in the dms-greeter package (defaults to the pinned dux-qt-base flake input, built against this system's nixpkgs).";
     };
     compositor.name = lib.mkOption {
       type = types.enum [
