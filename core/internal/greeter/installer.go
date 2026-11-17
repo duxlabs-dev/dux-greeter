@@ -1400,7 +1400,21 @@ func SetupDMSGroup(logFunc func(string), sudoPassword string) error {
 	return nil
 }
 
+// GreeterColorsStateSource returns the durable XDG state copy of the palette
+// when it exists (see dux-greeter issue #48: user caches can be volatile,
+// e.g. tmpfs mounts, so the greeter must not depend on them).
+func GreeterColorsStateSource(homeDir string) (string, bool) {
+	state := filepath.Join(utils.UserDMSDir(homeDir, ".local", "state"), "dms-colors.json")
+	if _, err := os.Stat(state); err == nil {
+		return state, true
+	}
+	return "", false
+}
+
 func GreeterColorsSource(homeDir string) string {
+	if state, ok := GreeterColorsStateSource(homeDir); ok {
+		return state
+	}
 	return filepath.Join(utils.UserDMSDir(homeDir, ".cache"), "dms-colors.json")
 }
 
