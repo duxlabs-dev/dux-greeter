@@ -1242,7 +1242,7 @@ Item {
 
     Timer {
         id: launchTimeout
-        interval: 8000
+        interval: Timing.timeout
         onTriggered: {
             if (!GreeterState.unlocking)
                 return;
@@ -1258,7 +1258,7 @@ Item {
 
     Timer {
         id: placeholderDelay
-        interval: 4000
+        interval: Timing.holdLong
         onTriggered: clearAuthFeedback()
     }
 

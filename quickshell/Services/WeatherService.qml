@@ -351,7 +351,7 @@ Singleton {
 
     Timer {
         id: persistentRetryTimer
-        interval: 60000
+        interval: Timing.minute
         running: false
         repeat: false
         onTriggered: {
