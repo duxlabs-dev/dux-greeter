@@ -366,7 +366,7 @@ Item {
                 color: {
                     if (!root.contained)
                         return "transparent";
-                    return root.morph ? Theme.surfaceContainerHigh : Theme.cardSurface;
+                    return root.morph ? Theme.chipSurface : Theme.cardSurface;
                 }
                 border.width: {
                     if (!root.contained)
