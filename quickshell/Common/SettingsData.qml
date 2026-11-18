@@ -62,7 +62,9 @@ Singleton {
     property int fontWeight: Spec.SPEC.fontWeight.def
     property real fontScale: Spec.SPEC.fontScale.def
     property real radiusStrength: Spec.SPEC.radiusStrength.def
-    property int animationDuration: Spec.SPEC.animationDuration.def
+    property string radiusMode: Spec.SPEC.radiusMode.def
+    property real fixedRadius: Spec.SPEC.fixedRadius.def
+    property int motionDuration: Spec.SPEC.motionDuration.def
     property bool enableRippleEffects: Spec.SPEC.enableRippleEffects.def
     property bool popoutElevationEnabled: Spec.SPEC.popoutElevationEnabled.def
     property int textRenderType: Spec.SPEC.textRenderType.def
@@ -149,8 +151,18 @@ Singleton {
         }
     }
 
+    readonly property var motionStepMs: [250, 375, 500, 750, 1000]
+
+    function motionStep(durationMs) {
+        if (durationMs <= 0)
+            return -1;
+        return motionStepMs.reduce((nearest, ms, step) => Math.abs(ms - durationMs) < Math.abs(motionStepMs[nearest] - durationMs) ? step : nearest, 0);
+    }
+
     function parseSettings(content) {
         const settings = readSettings(content);
+        if (settings.motionDuration === undefined && typeof settings.animationDuration === "number")
+            settings.motionDuration = motionStep(settings.animationDuration);
         if (settings.radiusStrength === undefined && settings.cornerRadius !== undefined)
             settings.radiusStrength = Shape.strengthFromRadius(settings.cornerRadius * Shape.corners.m / Shape.corners.l);
         for (const key in Spec.SPEC) {

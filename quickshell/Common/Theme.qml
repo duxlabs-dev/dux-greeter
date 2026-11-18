@@ -9,6 +9,7 @@ import qs.Modules.Greetd
 import qs.Services
 import "../DCommon/Common/Shape.js" as Shape
 import "../DCommon/Common/Contrast.js" as Contrast
+import "../DCommon/Common/Tonal.js" as Tonal
 import "../DCommon/Common/settings/SharedSettingsSpec.js" as Spec
 import "StockThemes.js" as StockThemes
 
@@ -219,19 +220,26 @@ Singleton {
     property color surfaceContainerHighest: currentThemeData.surfaceContainerHighest || surfaceContainerHigh
     property color surfaceBright: currentThemeData.surfaceBright || (isLightMode ? surface : surfaceContainerHighest)
     property color surfaceDim: currentThemeData.surfaceDim || (isLightMode ? surfaceContainer : background)
-    readonly property color hostSurface: surface
+    // Light mode runs the ladder the other way so the host stays the darkest tone and chips the lightest, as in dark mode
+    readonly property color hostSurface: isLightMode ? surfaceContainerHighest : surface
     readonly property color cardSurface: surfaceContainer
     readonly property color readableSurface: withAlpha(hostSurface, popupTransparency)
     readonly property real avatarRingWidth: 0
     readonly property color avatarRingColor: surfaceVariant
-    readonly property color chipSurface: surfaceContainerHigh
+    readonly property color chipSurface: isLightMode ? surface : surfaceContainerHigh
     readonly property color chipSurfaceNested: surfaceContainerHighest
-    property color primaryContainer: currentThemeData.primaryContainer || blend(surfaceContainerHigh, primary, 0.45)
+    readonly property real containerTint: currentThemeData.containerTint ?? Tonal.defaultTint(surfaceContainer)
+    property color primaryContainer: currentThemeData.softPrimaryContainer || Tonal.softContainer(primary, surfaceContainer, containerTint)
     property color secondaryContainer: currentThemeData.secondaryContainer || blend(surfaceContainerHigh, secondary, 0.35)
     property color tertiaryContainer: currentThemeData.tertiaryContainer || blend(surfaceContainerHigh, tertiary, 0.35)
-    readonly property bool tonalPrimaryContainer: Contrast.isTonal(primaryContainer, surfaceText)
-    readonly property color selectedContainer: tonalPrimaryContainer ? primaryContainer : Contrast.tintedContainer(surfaceContainerHigh, primary, surfaceText)
-    readonly property color accentOnPrimaryContainer: Contrast.ratio(primary, primaryContainer) >= 3 ? primary : onPrimaryContainer
+    readonly property real selectedContainerTint: currentThemeData.selectedContainerTint ?? 0.2
+    // A selected row has to read against the rows beside it and the surface behind them
+    readonly property var selectionNeighbors: [hostSurface, cardSurface, chipSurface]
+    readonly property real selectedContainerDistinction: 1.15
+    readonly property bool themedSelectedContainer: !!currentThemeData.secondaryContainer && Contrast.isTonal(secondaryContainer, onSecondaryContainer) && Contrast.isTonal(secondaryContainer, surfaceText) && Contrast.worstRatio(secondaryContainer, selectionNeighbors) >= selectedContainerDistinction
+    readonly property color selectedContainer: currentThemeData.selectedContainer || (themedSelectedContainer ? secondaryContainer : Contrast.distinctTint(chipSurface, primary, surfaceText, selectedContainerTint, selectionNeighbors, selectedContainerDistinction))
+    readonly property color accentOnSelectedContainer: currentThemeData.accentOnSelectedContainer || (Contrast.ratio(primary, selectedContainer) >= 3 ? primary : onSelectedContainer)
+    readonly property color accentOnPrimaryContainer: currentThemeData.accentOnPrimaryContainer || (Contrast.ratio(primary, primaryContainer) >= 3 ? primary : onPrimaryContainer)
     readonly property color contrastDark: "#000000"
     readonly property color inversePrimary: currentThemeData.inversePrimary || primary
     readonly property color contrastLight: "#ffffff"
@@ -267,7 +275,14 @@ Singleton {
         Binding {
             target: root
             property: "onPrimaryContainer"
-            value: root.currentThemeData.onPrimaryContainer || root.currentThemeData.primaryContainerText || Contrast.readableOn(root.primaryContainer, root.onContainerCandidates)
+            value: {
+                const explicit = root.currentThemeData.onPrimaryContainer || root.currentThemeData.primaryContainerText;
+                if (!explicit)
+                    return Contrast.readableOn(root.primaryContainer, root.onContainerCandidates);
+                if (root.currentThemeData.softPrimaryContainer)
+                    return explicit;
+                return Contrast.readableOn(root.primaryContainer, [Qt.color(explicit)].concat(root.onContainerCandidates));
+            }
         },
         Binding {
             target: root
@@ -277,7 +292,7 @@ Singleton {
         Binding {
             target: root
             property: "onErrorContainer"
-            value: root.currentThemeData.errorContainerText || root.surfaceText
+            value: root.currentThemeData.errorContainerText || root.getMatugenColor("on_error_container", root.blend(root.surfaceText, root.error, 0.5))
         },
         Binding {
             target: root
@@ -287,13 +302,13 @@ Singleton {
         Binding {
             target: root
             property: "onSelectedContainer"
-            value: root.tonalPrimaryContainer ? root.onPrimaryContainer : root.surfaceText
+            value: root.currentThemeData.onSelectedContainer || (root.currentThemeData.selectedContainer ? Contrast.readableOn(root.selectedContainer, root.onContainerCandidates) : root.themedSelectedContainer ? root.onSecondaryContainer : root.surfaceText)
         }
     ]
     readonly property var onContainerCandidates: [surfaceText, surface, contrastLight, contrastDark]
 
     property color error: currentThemeData.error || "#F2B8B5"
-    property color errorContainer: currentThemeData.errorContainer || surfaceContainerHigh
+    property color errorContainer: currentThemeData.errorContainer || getMatugenColor("error_container", blend(surfaceContainerHigh, error, 0.35))
     property color warning: currentThemeData.warning || "#FF9800"
 
     property color primaryHover: withAlpha(primary, 0.12)
@@ -331,8 +346,8 @@ Singleton {
     property color buttonPressed: primaryPressed
 
     property real popupTransparency: 1.0
-    readonly property color floatingSurface: withAlpha(surfaceContainer, popupTransparency)
-    readonly property color nestedSurface: withAlpha(surfaceContainerHigh, popupTransparency)
+    readonly property color floatingSurface: readableSurface
+    readonly property color nestedSurface: withAlpha(cardSurface, popupTransparency)
 
     property color widgetBaseHoverColor: {
         const blended = blend(surfaceContainerHigh, primary, 0.1);
@@ -433,36 +448,54 @@ Singleton {
         };
     }
 
-    readonly property int currentAnimationBaseDuration: SettingsData.animationDuration
-    readonly property int shorterDuration: Math.round(currentAnimationBaseDuration * 0.2)
-    readonly property int shortDuration: Math.round(currentAnimationBaseDuration * 0.3)
-    readonly property int mediumDuration: Math.round(currentAnimationBaseDuration * 0.6)
-    readonly property int standardEasing: Easing.OutCubic
-    readonly property int emphasizedEasing: Easing.OutQuart
+    readonly property var motionDurationScales: [0.5, 0.75, 1, 1.5, 2]
+    readonly property bool motionOff: SettingsData.motionDuration < 0
+    readonly property bool reduceMotion: motionOff
+    readonly property real motionScale: motionOff ? 0 : (motionDurationScales[SettingsData.motionDuration] ?? 1)
+    readonly property real springScale: motionOff ? 1 : motionScale
+
+    function motionMs(specMs) {
+        return Math.round(specMs * motionScale);
+    }
+
+    readonly property int shorterDuration: motionMs(100)
+    readonly property int shortDuration: motionMs(150)
+    readonly property int mediumDuration: motionMs(300)
+
+    readonly property var springSpecs: ({
+            "fastSpatial": [800, 2 * 0.6 * Math.sqrt(800)],
+            "defaultSpatial": [380, 2 * 0.8 * Math.sqrt(380)],
+            "slowSpatial": [200, 2 * 0.8 * Math.sqrt(200)],
+            "fastEffects": [3800, 2 * Math.sqrt(3800)],
+            "defaultEffects": [1600, 2 * Math.sqrt(1600)],
+            "slowEffects": [800, 2 * Math.sqrt(800)]
+        })
+
+    function springPreset(name) {
+        const spec = springSpecs[name];
+        return {
+            "stiffness": spec[0] / (springScale * springScale),
+            "damping": spec[1] / springScale,
+            "mass": 1
+        };
+    }
 
     readonly property var expressiveCurves: ({
-            "emphasized": [0.05, 0, 2 / 15, 0.06, 1 / 6, 0.4, 5 / 24, 0.82, 0.25, 1, 1, 1],
-            "emphasizedAccel": [0.3, 0, 0.8, 0.15, 1, 1],
-            "emphasizedDecel": [0.05, 0.7, 0.1, 1, 1, 1],
-            "standard": [0.2, 0, 0, 1, 1, 1],
-            "standardAccel": [0.3, 0, 1, 1, 1, 1],
-            "standardDecel": [0, 0, 0, 1, 1, 1],
             "expressiveFastSpatial": [0.42, 1.67, 0.21, 0.9, 1, 1],
             "expressiveDefaultSpatial": [0.38, 1.21, 0.22, 1, 1, 1],
-            "expressiveEffects": [0.34, 0.8, 0.34, 1, 1, 1]
+            "expressiveSlowSpatial": [0.39, 1.29, 0.35, 0.98, 1, 1],
+            "expressiveFastEffects": [0.31, 0.94, 0.34, 1, 1, 1],
+            "expressiveEffects": [0.34, 0.8, 0.34, 1, 1, 1],
+            "expressiveSlowEffects": [0.34, 0.88, 0.34, 1, 1, 1]
         })
 
     readonly property var expressiveDurations: ({
-            "fast": currentAnimationBaseDuration * 0.4,
-            "normal": currentAnimationBaseDuration * 0.8,
-            "large": currentAnimationBaseDuration * 1.2,
-            "extraLarge": currentAnimationBaseDuration * 2.0,
-            "expressiveFastSpatial": currentAnimationBaseDuration * 0.7,
-            "expressiveDefaultSpatial": currentAnimationBaseDuration,
-            "expressiveSlowSpatial": currentAnimationBaseDuration * 1.3,
-            "expressiveFastEffects": currentAnimationBaseDuration * 0.3,
-            "expressiveEffects": currentAnimationBaseDuration * 0.4,
-            "expressiveSlowEffects": currentAnimationBaseDuration * 0.6
+            "expressiveFastSpatial": motionMs(350),
+            "expressiveDefaultSpatial": motionMs(500),
+            "expressiveSlowSpatial": motionMs(650),
+            "expressiveFastEffects": motionMs(150),
+            "expressiveEffects": motionMs(200),
+            "expressiveSlowEffects": motionMs(300)
         })
 
     property string fontFamily: resolvedFontFamily(SettingsData.lockScreenFontFamily !== "" ? SettingsData.lockScreenFontFamily : SettingsData.fontFamily)
@@ -470,16 +503,17 @@ Singleton {
     property int fontWeight: SettingsData.fontWeight
     property real fontScale: SettingsData.fontScale
     readonly property real radiusStrength: SettingsData.radiusStrength
-    readonly property real shapeScale: Shape.scaleForStrength(radiusStrength)
+    readonly property real fixedRadius: SettingsData.radiusMode === "fixed" ? SettingsData.fixedRadius : -1
+    readonly property real shapeScale: fixedRadius >= 0 ? fixedRadius / Shape.corners.m : Shape.scaleForStrength(radiusStrength)
     readonly property real cornerRadius: cornerRadiusM
-    readonly property real cornerRadiusXS: Shape.radius("xs", shapeScale)
-    readonly property real cornerRadiusS: Shape.radius("s", shapeScale)
-    readonly property real cornerRadiusM: Shape.radius("m", shapeScale)
-    readonly property real cornerRadiusL: Shape.radius("l", shapeScale)
-    readonly property real cornerRadiusXL: Shape.radius("xl", shapeScale)
+    readonly property real cornerRadiusXS: Shape.radius("xs", shapeScale, fixedRadius)
+    readonly property real cornerRadiusS: Shape.radius("s", shapeScale, fixedRadius)
+    readonly property real cornerRadiusM: Shape.radius("m", shapeScale, fixedRadius)
+    readonly property real cornerRadiusL: Shape.radius("l", shapeScale, fixedRadius)
+    readonly property real cornerRadiusXL: Shape.radius("xl", shapeScale, fixedRadius)
 
     function fullRadius(width, height) {
-        return Shape.fullRadius(width, height, shapeScale);
+        return Shape.fullRadius(width, height, shapeScale, fixedRadius);
     }
 
     function resolvedFontFamily(family) {
@@ -500,10 +534,13 @@ Singleton {
     property real spacingM: 12
     property real spacingL: 16
     property real spacingXL: 24
+    property real fontSizeXSmall: Math.round(fontScale * 10)
     property real fontSizeSmall: Math.round(fontScale * 12)
     property real fontSizeMedium: Math.round(fontScale * 14)
     property real fontSizeLarge: Math.round(fontScale * 16)
     property real fontSizeXLarge: Math.round(fontScale * 20)
+    property real fontSizeXXLarge: Math.round(fontScale * 28)
+    property real fontSizeDisplay: Math.round(fontScale * 36)
     property real fontSizeDisplayLarge: Math.round(fontScale * 57)
     property real iconSize: 24
     property real iconSizeSmall: 16
@@ -520,10 +557,10 @@ Singleton {
     readonly property real outlineWidth: 1
     readonly property real outlineWidthFocused: 2
     readonly property real dividerWidth: 1
-    readonly property real focusRingWidth: 2
+    readonly property real focusRingWidth: 1.5
     readonly property color focusRingColor: primary
     readonly property real stateLayerHover: 0.08
-    readonly property real stateLayerPressed: 0.12
+    readonly property real stateLayerPressed: 0.1
     readonly property real stateLayerDrag: 0.16
     readonly property real pendingOpacity: 0.6
 
@@ -547,7 +584,8 @@ Singleton {
     readonly property int wallpaperBlurMax: 75
     readonly property color screenOffColor: "#000000"
     readonly property real scrimAlpha: 0.55
-    readonly property color scrimColor: "#000000"
+    readonly property color scrimColor: currentThemeData.scrim || "#000000"
+    readonly property color backdropColor: surface.hslLightness >= 0.5 ? surfaceDim : scrimColor
 
     function withAlpha(c, a) {
         if (!c || c.r === undefined)
