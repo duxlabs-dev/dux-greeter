@@ -52,3 +52,18 @@ func TestHyprlandConfigWarning(t *testing.T) {
 		}
 	}
 }
+
+func TestSystemdStateStartsAtBoot(t *testing.T) {
+	for state, want := range map[string]bool{
+		"enabled":         true,
+		"enabled-runtime": true,
+		"disabled":        false,
+		"masked":          false,
+		"not-found":       false,
+		"static":          false,
+	} {
+		if got := systemdStateStartsAtBoot(state); got != want {
+			t.Errorf("systemdStateStartsAtBoot(%q) = %v, want %v", state, got, want)
+		}
+	}
+}

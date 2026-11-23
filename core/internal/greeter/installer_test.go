@@ -17,8 +17,8 @@ func TestEnsureGreeterCacheSELinuxContext(t *testing.T) {
 		t.Parallel()
 		var commands []string
 		deps := cacheSELinuxDeps{
-			isEnforcing:   func() bool { return false },
-			commandExists: func(string) bool { return true },
+			isEnforcing: func() bool { return false },
+			lookCommand: func(name string) (string, bool) { return name, true },
 			run: func(_ string, command string, _ ...string) error {
 				commands = append(commands, command)
 				return nil
@@ -48,10 +48,10 @@ func TestEnsureGreeterCacheSELinuxContext(t *testing.T) {
 			return nil
 		}
 		deps := cacheSELinuxDeps{
-			isEnforcing:   func() bool { return true },
-			commandExists: func(string) bool { return true },
-			run:           run,
-			runQuiet:      run,
+			isEnforcing: func() bool { return true },
+			lookCommand: func(name string) (string, bool) { return name, true },
+			run:         run,
+			runQuiet:    run,
 		}
 		if err := ensureGreeterCacheSELinuxContext(GreeterCacheDir, func(string) {}, "", deps); err != nil {
 			t.Fatalf("ensureGreeterCacheSELinuxContext returned error: %v", err)
@@ -74,16 +74,41 @@ func TestEnsureGreeterCacheSELinuxContext(t *testing.T) {
 			return nil
 		}
 		deps := cacheSELinuxDeps{
-			isEnforcing:   func() bool { return true },
-			commandExists: func(string) bool { return true },
-			run:           run,
-			runQuiet:      run,
+			isEnforcing: func() bool { return true },
+			lookCommand: func(name string) (string, bool) { return name, true },
+			run:         run,
+			runQuiet:    run,
 		}
 		if err := ensureGreeterCacheSELinuxContext(GreeterCacheDir, func(string) {}, "", deps); err != nil {
 			t.Fatalf("ensureGreeterCacheSELinuxContext returned error: %v", err)
 		}
 		if len(commands) != 2 || !strings.Contains(commands[0], "fcontext -m") || !strings.HasPrefix(commands[1], "restorecon ") {
 			t.Fatalf("unexpected command sequence: %v", commands)
+		}
+	})
+
+	t.Run("runs tools by their resolved sbin paths", func(t *testing.T) {
+		t.Parallel()
+		var commands []string
+		run := func(_ string, command string, args ...string) error {
+			commands = append(commands, strings.Join(append([]string{command}, args...), " "))
+			return nil
+		}
+		deps := cacheSELinuxDeps{
+			isEnforcing: func() bool { return true },
+			lookCommand: func(name string) (string, bool) { return "/usr/sbin/" + name, true },
+			run:         run,
+			runQuiet:    run,
+		}
+		if err := ensureGreeterCacheSELinuxContext(GreeterCacheDir, func(string) {}, "", deps); err != nil {
+			t.Fatalf("ensureGreeterCacheSELinuxContext returned error: %v", err)
+		}
+		want := []string{
+			"/usr/sbin/semanage fcontext -m -t cache_home_t /var/cache/dms-greeter(/.*)?",
+			"/usr/sbin/restorecon -R /var/cache/dms-greeter",
+		}
+		if !reflect.DeepEqual(commands, want) {
+			t.Fatalf("commands = %v, want %v", commands, want)
 		}
 	})
 
@@ -98,10 +123,10 @@ func TestEnsureGreeterCacheSELinuxContext(t *testing.T) {
 			return errors.New("semanage failed")
 		}
 		deps := cacheSELinuxDeps{
-			isEnforcing:   func() bool { return true },
-			commandExists: func(string) bool { return true },
-			run:           run,
-			runQuiet:      run,
+			isEnforcing: func() bool { return true },
+			lookCommand: func(name string) (string, bool) { return name, true },
+			run:         run,
+			runQuiet:    run,
 		}
 		if err := ensureGreeterCacheSELinuxContext(GreeterCacheDir, func(string) {}, "", deps); err == nil {
 			t.Fatal("expected mapping repair error")

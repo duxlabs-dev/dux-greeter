@@ -297,6 +297,15 @@ func checkGreeterStatus() error {
 		allGood = false
 	}
 
+	fmt.Println("\ngreetd Service:")
+	if enabled, state := greetdBootState(); enabled {
+		fmt.Printf("  ✓ greetd starts at boot (%s)\n", state)
+	} else {
+		fmt.Printf("  ✗ greetd does not start at boot (%s)\n", state)
+		fmt.Println("    Run 'dms-greeter enable' to enable it.")
+		allGood = false
+	}
+
 	if legacyPaths := greeter.LegacyWrapperScriptPaths(); len(legacyPaths) > 0 {
 		fmt.Printf("  ⚠ Legacy dms-greeter shell wrapper detected at %s\n", strings.Join(legacyPaths, ", "))
 		fmt.Println("    Remove it (or the old dms-greeter package) so the standalone binary is used.")
@@ -781,4 +790,23 @@ func printUserSlotStatus(cacheDir, currentUsername string) bool {
 	}
 	fmt.Printf("  ℹ users/%s/ - not synced (run: dms-greeter sync --profile)\n", currentUsername)
 	return true
+}
+
+// Package scriptlets write the greetd config without enabling the service.
+func greetdBootState() (bool, string) {
+	if isRunit() {
+		if runitServiceEnabled("greetd") {
+			return true, "linked in " + runitServiceDir
+		}
+		return false, "not linked in " + runitServiceDir
+	}
+	state, _, err := checkSystemdServiceEnabled("greetd")
+	if err != nil {
+		return false, err.Error()
+	}
+	return systemdStateStartsAtBoot(state), state
+}
+
+func systemdStateStartsAtBoot(state string) bool {
+	return state == "enabled" || state == "enabled-runtime"
 }

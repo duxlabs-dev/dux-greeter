@@ -8,22 +8,30 @@ import (
 )
 
 func CommandExists(cmd string) bool {
-	_, err := exec.LookPath(cmd)
-	if err == nil {
-		return true
+	_, ok := LookCommand(cmd)
+	return ok
+}
+
+// LookCommand also checks sbin, which openSUSE and Debian leave off an
+// unprivileged user's PATH.
+func LookCommand(cmd string) (string, bool) {
+	if path, err := exec.LookPath(cmd); err == nil {
+		return path, true
 	}
 	if strings.ContainsRune(cmd, os.PathSeparator) {
-		return false
+		return "", false
 	}
-	for _, dir := range userBinDirs() {
+	for _, dir := range append(userBinDirs(), systemSbinDirs...) {
 		path := filepath.Join(dir, cmd)
 		info, statErr := os.Stat(path)
 		if statErr == nil && !info.IsDir() && info.Mode()&0o111 != 0 {
-			return true
+			return path, true
 		}
 	}
-	return false
+	return "", false
 }
+
+var systemSbinDirs = []string{"/usr/local/sbin", "/usr/sbin", "/sbin"}
 
 func EnvWithUserBinPath(env []string) []string {
 	if env == nil {

@@ -811,16 +811,7 @@ func detectCompositors(commandExists func(string) bool) []string {
 
 // EnsureGreetdInstalled checks if greetd is installed - greetd is a daemon in /usr/sbin on Debian/Ubuntu
 func EnsureGreetdInstalled(logFunc func(string), sudoPassword string) error {
-	greetdFound := utils.CommandExists("greetd")
-	if !greetdFound {
-		for _, p := range []string{"/usr/sbin/greetd", "/sbin/greetd"} {
-			if _, err := os.Stat(p); err == nil {
-				greetdFound = true
-				break
-			}
-		}
-	}
-	if greetdFound {
+	if utils.CommandExists("greetd") {
 		logFunc("✓ greetd is already installed")
 		return nil
 	}
@@ -948,16 +939,16 @@ func EnsureGreeterCacheDir(logFunc func(string), sudoPassword string) error {
 }
 
 type cacheSELinuxDeps struct {
-	isEnforcing   func() bool
-	commandExists func(string) bool
-	run           func(string, string, ...string) error
-	runQuiet      func(string, string, ...string) error
+	isEnforcing func() bool
+	lookCommand func(string) (string, bool)
+	run         func(string, string, ...string) error
+	runQuiet    func(string, string, ...string) error
 }
 
 func defaultCacheSELinuxDeps() cacheSELinuxDeps {
 	return cacheSELinuxDeps{
-		isEnforcing:   isSELinuxEnforcing,
-		commandExists: utils.CommandExists,
+		isEnforcing: isSELinuxEnforcing,
+		lookCommand: utils.LookCommand,
 		run: func(password, command string, args ...string) error {
 			return privesc.Run(context.Background(), password, append([]string{command}, args...)...)
 		},
@@ -977,26 +968,30 @@ func ensureGreeterCacheSELinuxContext(cacheDir string, logFunc func(string), sud
 	if !deps.isEnforcing() {
 		return nil
 	}
-	if !deps.commandExists("semanage") {
+	// Run both by absolute path: they live in sbin, which some privilege
+	// tools do not search.
+	semanage, ok := deps.lookCommand("semanage")
+	if !ok {
 		return fmt.Errorf("SELinux is enforcing but semanage is unavailable; install policycoreutils-python-utils before syncing the greeter")
 	}
-	if !deps.commandExists("restorecon") {
+	restorecon, ok := deps.lookCommand("restorecon")
+	if !ok {
 		return fmt.Errorf("SELinux is enforcing but restorecon is unavailable; install policycoreutils before syncing the greeter")
 	}
 
 	pattern := cacheDir + "(/.*)?"
 	// A missing local mapping is expected after some package swaps. Keep that
 	// probe quiet, then surface an error only if the fallback add also fails.
-	modifyErr := deps.runQuiet(sudoPassword, "semanage", "fcontext", "-m", "-t", "cache_home_t", pattern)
+	modifyErr := deps.runQuiet(sudoPassword, semanage, "fcontext", "-m", "-t", "cache_home_t", pattern)
 	if modifyErr != nil {
-		if addErr := deps.run(sudoPassword, "semanage", "fcontext", "-a", "-t", "cache_home_t", pattern); addErr != nil {
+		if addErr := deps.run(sudoPassword, semanage, "fcontext", "-a", "-t", "cache_home_t", pattern); addErr != nil {
 			return fmt.Errorf("failed to persist SELinux context for %s (modify: %v; add: %w)", cacheDir, modifyErr, addErr)
 		}
 	}
 
 	// Keep recursive relabeling quiet: a repaired cache can contain hundreds of
 	// shader-cache files. restorecon still reports failures through stderr
-	if err := deps.run(sudoPassword, "restorecon", "-R", cacheDir); err != nil {
+	if err := deps.run(sudoPassword, restorecon, "-R", cacheDir); err != nil {
 		return fmt.Errorf("failed to apply SELinux context to %s: %w", cacheDir, err)
 	}
 	logFunc(fmt.Sprintf("✓ Ensured SELinux context for %s (cache_home_t)", cacheDir))
